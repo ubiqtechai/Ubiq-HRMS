@@ -1,220 +1,199 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Search } from "lucide-react";
-import { useState } from "react";
+import { Mic, Settings, Send } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+
+interface ChatMessage {
+  id: string;
+  text: string;
+  isUser: boolean;
+  timestamp: Date;
+}
 
 const GenerateLetterForm = () => {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
-  const [letterType, setLetterType] = useState("");
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const steps = [
-    { id: 1, title: "General", isActive: currentStep === 1, isCompleted: currentStep > 1 },
-    { id: 2, title: "Select Employees", isActive: currentStep === 2, isCompleted: currentStep > 2 },
-    { id: 3, title: "Preview", isActive: currentStep === 3, isCompleted: currentStep > 3 },
-    { id: 4, title: "Publish/Download", isActive: currentStep === 4, isCompleted: false },
-  ];
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(scrollToBottom, [messages]);
+
+  const sendMessage = async () => {
+    if (!input.trim() || isLoading) return;
+
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      text: input,
+      isUser: true,
+      timestamp: new Date()
+    };
+
+    console.log("Sending user message:", userMessage);
+    setMessages(prev => [...prev, userMessage]);
+    setInput("");
+    setIsLoading(true);
+
+    try {
+      console.log("Sending request to webhook: https://adarskr03.app.n8n.cloud/webhook/letter-chat");
+      console.log("Request payload:", { message: userMessage.text });
+
+      const response = await fetch("https://adarskr03.app.n8n.cloud/webhook/letter-chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: userMessage.text,
+          timestamp: userMessage.timestamp.toISOString(),
+          sessionId: "hrms-letter-generation"
+        }),
+      });
+
+      console.log("Response status:", response.status);
+      console.log("Response headers:", Object.fromEntries(response.headers.entries()));
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Response data:", data);
+
+        const botMessage: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          text: data.response || data.message || "Letter generation request received successfully!",
+          isUser: false,
+          timestamp: new Date()
+        };
+
+        console.log("Adding bot message:", botMessage);
+        setMessages(prev => [...prev, botMessage]);
+      } else {
+        console.error("HTTP Error:", response.status, response.statusText);
+        const errorText = await response.text();
+        console.error("Error response body:", errorText);
+        
+        const errorMessage: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          text: `Error: Unable to process your request. Status: ${response.status}`,
+          isUser: false,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, errorMessage]);
+      }
+    } catch (error) {
+      console.error("Network/Request error:", error);
+      const errorMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        text: "Error: Could not connect to the letter generation service. Please try again.",
+        isUser: false,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+      console.log("Request completed");
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex">
-        {/* Left Sidebar */}
-        <div className="w-64 mr-8">
-          <div className="space-y-4">
-            {steps.map((step, index) => (
-              <div key={step.id} className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                  step.isActive 
-                    ? 'bg-blue-600 text-white' 
-                    : step.isCompleted 
-                    ? 'bg-green-600 text-white' 
-                    : 'bg-slate-600 text-slate-300'
-                }`}>
-                  {step.isCompleted ? '✓' : step.id}
-                </div>
-                <span className={`text-sm ${step.isActive ? 'text-white' : 'text-slate-400'}`}>
-                  {step.title}
-                </span>
-              </div>
-            ))}
-          </div>
+    <div className="max-w-4xl mx-auto h-[600px] flex flex-col bg-slate-900/50 backdrop-blur-xl rounded-lg border border-slate-700">
+      {/* Header */}
+      <div className="p-6 border-b border-slate-700">
+        <h1 className="text-2xl font-semibold text-white text-center">
+          What are you working on?
+        </h1>
+      </div>
 
-          <div className="mt-8 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
-            <h3 className="text-white font-medium mb-3">Summary:</h3>
-            <div className="space-y-2 text-sm text-slate-400">
-              <div>
-                <span className="text-slate-300">Letter Template</span>
-                <div>-</div>
-              </div>
-              <div>
-                <span className="text-slate-300">Employee</span>
-                <div>-</div>
-              </div>
-              <div>
-                <span className="text-slate-300">Signatory</span>
-                <div>-</div>
+      {/* Messages Area */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        {messages.length === 0 && (
+          <div className="text-center text-slate-400 py-12">
+            <p>Start a conversation about letter generation.</p>
+            <p className="text-sm mt-2">Ask for help with creating employee letters, documents, or any HR-related correspondence.</p>
+          </div>
+        )}
+        
+        {messages.map((message) => (
+          <div
+            key={message.id}
+            className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
+          >
+            <div
+              className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                message.isUser
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-slate-700 text-white'
+              }`}
+            >
+              <p className="text-sm">{message.text}</p>
+              <p className="text-xs opacity-70 mt-1">
+                {message.timestamp.toLocaleTimeString()}
+              </p>
+            </div>
+          </div>
+        ))}
+        
+        {isLoading && (
+          <div className="flex justify-start">
+            <div className="bg-slate-700 text-white px-4 py-2 rounded-lg">
+              <div className="flex items-center space-x-2">
+                <div className="animate-pulse">●</div>
+                <div className="animate-pulse delay-100">●</div>
+                <div className="animate-pulse delay-200">●</div>
               </div>
             </div>
           </div>
-        </div>
+        )}
+        
+        <div ref={messagesEndRef} />
+      </div>
 
-        {/* Main Content */}
-        <div className="flex-1">
-          <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700">
-            <CardContent className="p-6">
-              {currentStep === 1 && (
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">
-                      Letter Template *
-                    </label>
-                    <Select>
-                      <SelectTrigger className="bg-slate-700/50 border-slate-600 text-white">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-slate-800 border-slate-600">
-                        <SelectItem value="address-proof">Address Proof Letter</SelectItem>
-                        <SelectItem value="offer">Offer Letter</SelectItem>
-                        <SelectItem value="experience">Experience Letter</SelectItem>
-                        <SelectItem value="termination">Termination Letter</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">
-                      Serial No.
-                    </label>
-                    <Input 
-                      className="bg-slate-700/50 border-slate-600 text-white placeholder-slate-400"
-                      placeholder="Serial Number"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">
-                      Authorised Signatory
-                    </label>
-                    <Select>
-                      <SelectTrigger className="bg-slate-700/50 border-slate-600 text-white">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-slate-800 border-slate-600">
-                        <SelectItem value="hr">HR Manager</SelectItem>
-                        <SelectItem value="ceo">CEO</SelectItem>
-                        <SelectItem value="director">Director</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">
-                      Remarks
-                    </label>
-                    <Textarea 
-                      placeholder="Type your description..."
-                      className="bg-slate-700/50 border-slate-600 text-white placeholder-slate-400 min-h-[120px]"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {currentStep === 2 && (
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-4">
-                      Generate for
-                    </label>
-                    <div className="flex gap-6">
-                      <label className="flex items-center gap-2 cursor-pointer">
-                        <input 
-                          type="radio" 
-                          name="generateFor" 
-                          value="single" 
-                          defaultChecked
-                          className="w-4 h-4 text-blue-600 border-slate-600 bg-slate-700"
-                        />
-                        <span className="text-slate-300">Single Employee</span>
-                      </label>
-                      <label className="flex items-center gap-2 cursor-pointer">
-                        <input 
-                          type="radio" 
-                          name="generateFor" 
-                          value="multiple"
-                          className="w-4 h-4 text-blue-600 border-slate-600 bg-slate-700"
-                        />
-                        <span className="text-slate-300">Multiple Employees</span>
-                      </label>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">
-                      Employee Type: <span className="text-slate-400">Current Employees</span>
-                    </label>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">
-                      Search Employee <span className="text-red-400">*</span>
-                    </label>
-                    <div className="relative">
-                      <Input 
-                        className="bg-slate-700/50 border-slate-600 text-white placeholder-slate-400 pl-10"
-                        placeholder="Search by Emp No. / Name"
-                      />
-                      <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {currentStep === 3 && (
-                <div className="space-y-4">
-                  <div>
-                    <Label className="text-slate-300 mb-2 block">Summary</Label>
-                    <Textarea
-                      value={selectedEmployees.length > 0 
-                        ? `Selected ${selectedEmployees.length} employee(s): ${selectedEmployees.join(', ')}. Letter type: ${letterType}. ${selectedEmployees.length === 1 ? 'Single employee' : 'Multiple employees'} selected for ${letterType.toLowerCase()} letter generation.`
-                        : "Enter summary or additional details..."
-                      }
-                      placeholder="Enter summary or additional details..."
-                      className="bg-slate-800 text-white border-slate-700 h-32"
-                      readOnly={selectedEmployees.length > 0}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {currentStep === 4 && (
-                <div className="text-center py-12">
-                  <p className="text-slate-400">Publish/Download step content</p>
-                </div>
-              )}
-
-              <div className="flex justify-between mt-8">
-                <Button 
-                  variant="outline" 
-                  className="text-slate-300 border-slate-600 hover:bg-slate-700"
-                  onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
-                  disabled={currentStep === 1}
-                >
-                  Previous
-                </Button>
-                <Button 
-                  className="bg-blue-600 hover:bg-blue-700"
-                  onClick={() => setCurrentStep(Math.min(4, currentStep + 1))}
-                  disabled={currentStep === 4}
-                >
-                  {currentStep === 4 ? 'Generate' : 'Next'}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+      {/* Input Area */}
+      <div className="p-6 border-t border-slate-700">
+        <div className="flex items-center space-x-4">
+          <Button
+            variant="outline"
+            size="icon"
+            className="border-slate-600 text-slate-400 hover:text-white hover:bg-slate-700"
+          >
+            <Mic className="w-4 h-4" />
+          </Button>
+          
+          <div className="flex-1 relative">
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Ask anything"
+              className="bg-slate-800/50 border-slate-600 text-white placeholder-slate-400 pr-12"
+              disabled={isLoading}
+            />
+            <Button
+              onClick={sendMessage}
+              disabled={!input.trim() || isLoading}
+              size="icon"
+              className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-primary hover:bg-primary/90"
+            >
+              <Send className="w-4 h-4" />
+            </Button>
+          </div>
+          
+          <Button
+            variant="outline"
+            size="icon"
+            className="border-slate-600 text-slate-400 hover:text-white hover:bg-slate-700"
+          >
+            <Settings className="w-4 h-4" />
+          </Button>
         </div>
       </div>
     </div>
