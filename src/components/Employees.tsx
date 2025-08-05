@@ -259,6 +259,12 @@ const Employees = () => {
                 </div>
                 
                 <div className="flex items-center gap-2">
+                  <Button 
+                    variant="outline" 
+                    className="text-slate-300 border-slate-600 hover:bg-slate-700"
+                  >
+                    Filter
+                  </Button>
                   <Button
                     variant={viewMode === "table" ? "default" : "outline"}
                     size="sm"
