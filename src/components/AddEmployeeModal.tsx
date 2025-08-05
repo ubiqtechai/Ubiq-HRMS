@@ -17,6 +17,7 @@ type AddEmployeeModalProps = {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   onAddEmployee?: (employee: {
+    employeeId: string;
     name: string;
     email: string;
     phone: string;
@@ -24,6 +25,9 @@ type AddEmployeeModalProps = {
     role: string;
     location: string;
     joiningDate: string;
+    dateOfBirth: string;
+    bloodGroup: string;
+    avatar: string;
   }) => void;
 };
 
@@ -32,6 +36,7 @@ export default function AddEmployeeModal({
   onOpenChange,
   onAddEmployee,
 }: AddEmployeeModalProps) {
+  const [employeeId, setEmployeeId] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -39,11 +44,14 @@ export default function AddEmployeeModal({
   const [role, setRole] = useState("");
   const [location, setLocation] = useState("");
   const [joiningDate, setJoiningDate] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [bloodGroup, setBloodGroup] = useState("");
 
   const handleSave = () => {
     // Add employee to list on parent component
     if (onAddEmployee) {
       onAddEmployee({
+        employeeId,
         name,
         email,
         phone,
@@ -51,9 +59,13 @@ export default function AddEmployeeModal({
         role,
         location,
         joiningDate,
+        dateOfBirth,
+        bloodGroup,
+        avatar: name.split(' ').map(n => n[0]).join('').toUpperCase(),
       });
     }
     onOpenChange(false);
+    setEmployeeId("");
     setName("");
     setEmail("");
     setPhone("");
@@ -61,6 +73,8 @@ export default function AddEmployeeModal({
     setRole("");
     setLocation("");
     setJoiningDate("");
+    setDateOfBirth("");
+    setBloodGroup("");
   };
 
   return (
@@ -75,6 +89,19 @@ export default function AddEmployeeModal({
           </DialogHeader>
           <div className="space-y-4 mt-2">
             <div>
+              <Label htmlFor="employeeId" className="text-slate-300 mb-1 block">
+                Employee ID
+              </Label>
+              <Input
+                id="employeeId"
+                placeholder="e.g. EMP001"
+                value={employeeId}
+                onChange={(e) => setEmployeeId(e.target.value)}
+                className="bg-slate-800 text-white border-slate-700"
+                autoFocus
+              />
+            </div>
+            <div>
               <Label htmlFor="name" className="text-slate-300 mb-1 block">
                 Full Name
               </Label>
@@ -84,7 +111,6 @@ export default function AddEmployeeModal({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="bg-slate-800 text-white border-slate-700"
-                autoFocus
               />
             </div>
             <div>
@@ -157,6 +183,30 @@ export default function AddEmployeeModal({
                 type="date"
                 value={joiningDate}
                 onChange={(e) => setJoiningDate(e.target.value)}
+                className="bg-slate-800 text-white border-slate-700"
+              />
+            </div>
+            <div>
+              <Label htmlFor="dateOfBirth" className="text-slate-300 mb-1 block">
+                Date of Birth
+              </Label>
+              <Input
+                id="dateOfBirth"
+                type="date"
+                value={dateOfBirth}
+                onChange={(e) => setDateOfBirth(e.target.value)}
+                className="bg-slate-800 text-white border-slate-700"
+              />
+            </div>
+            <div>
+              <Label htmlFor="bloodGroup" className="text-slate-300 mb-1 block">
+                Blood Group
+              </Label>
+              <Input
+                id="bloodGroup"
+                placeholder="e.g. A+, B-, O+, AB-"
+                value={bloodGroup}
+                onChange={(e) => setBloodGroup(e.target.value)}
                 className="bg-slate-800 text-white border-slate-700"
               />
             </div>

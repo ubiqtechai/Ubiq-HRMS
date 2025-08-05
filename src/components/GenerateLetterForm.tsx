@@ -3,11 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Search } from "lucide-react";
 import { useState } from "react";
 
 const GenerateLetterForm = () => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
+  const [letterType, setLetterType] = useState("");
 
   const steps = [
     { id: 1, title: "General", isActive: currentStep === 1, isCompleted: currentStep > 1 },
@@ -171,8 +174,19 @@ const GenerateLetterForm = () => {
               )}
 
               {currentStep === 3 && (
-                <div className="text-center py-12">
-                  <p className="text-slate-400">Preview step content</p>
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-slate-300 mb-2 block">Summary</Label>
+                    <Textarea
+                      value={selectedEmployees.length > 0 
+                        ? `Selected ${selectedEmployees.length} employee(s): ${selectedEmployees.join(', ')}. Letter type: ${letterType}. ${selectedEmployees.length === 1 ? 'Single employee' : 'Multiple employees'} selected for ${letterType.toLowerCase()} letter generation.`
+                        : "Enter summary or additional details..."
+                      }
+                      placeholder="Enter summary or additional details..."
+                      className="bg-slate-800 text-white border-slate-700 h-32"
+                      readOnly={selectedEmployees.length > 0}
+                    />
+                  </div>
                 </div>
               )}
 

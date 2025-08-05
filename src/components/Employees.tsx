@@ -389,9 +389,11 @@ const Employees = () => {
                             <span className="text-white font-semibold">{employee.avatar}</span>
                           </div>
                           <div>
+                            <p className="text-xs text-slate-500">{employee.employeeId}</p>
                             <h3 className="text-white font-semibold">{employee.name}</h3>
                             <p className="text-slate-400 text-sm">{employee.role}</p>
                             <p className="text-slate-400 text-sm">{employee.department}</p>
+                            <p className="text-xs text-slate-500">DOB: {employee.dateOfBirth} | Blood: {employee.bloodGroup}</p>
                           </div>
                         </div>
                       </div>

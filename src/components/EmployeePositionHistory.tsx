@@ -2,9 +2,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
+import AddPositionModal from "./AddPositionModal";
 
 const EmployeePositionHistory = () => {
-  const positionHistory = [
+  const [isAddPositionOpen, setIsAddPositionOpen] = useState(false);
+  const [positionHistory, setPositionHistory] = useState([
     {
       id: 1,
       position: "Senior Developer",
@@ -35,7 +38,20 @@ const EmployeePositionHistory = () => {
       status: "Completed",
       manager: "Mike Brown"
     }
-  ];
+  ]);
+
+  const handleAddPosition = (newPosition: any) => {
+    const newId = Math.max(...positionHistory.map(p => p.id)) + 1;
+    setPositionHistory([
+      {
+        id: newId,
+        ...newPosition,
+        endDate: "Current",
+        status: "Active"
+      },
+      ...positionHistory
+    ]);
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -44,7 +60,10 @@ const EmployeePositionHistory = () => {
           <h2 className="text-2xl font-bold text-white mb-2">Position History</h2>
           <p className="text-slate-400">Track employee career progression</p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700">
+        <Button 
+          className="bg-blue-600 hover:bg-blue-700"
+          onClick={() => setIsAddPositionOpen(true)}
+        >
           Add Position
         </Button>
       </div>
@@ -136,6 +155,12 @@ const EmployeePositionHistory = () => {
           </CardContent>
         </Card>
       </div>
+
+      <AddPositionModal
+        open={isAddPositionOpen}
+        onOpenChange={setIsAddPositionOpen}
+        onAddPosition={handleAddPosition}
+      />
     </div>
   );
 };
