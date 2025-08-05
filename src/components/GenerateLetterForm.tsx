@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 import { useState } from "react";
 
 const GenerateLetterForm = () => {
@@ -73,6 +74,7 @@ const GenerateLetterForm = () => {
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
                       <SelectContent className="bg-slate-800 border-slate-600">
+                        <SelectItem value="address-proof">Address Proof Letter</SelectItem>
                         <SelectItem value="offer">Offer Letter</SelectItem>
                         <SelectItem value="experience">Experience Letter</SelectItem>
                         <SelectItem value="termination">Termination Letter</SelectItem>
@@ -119,8 +121,52 @@ const GenerateLetterForm = () => {
               )}
 
               {currentStep === 2 && (
-                <div className="text-center py-12">
-                  <p className="text-slate-400">Select Employees step content</p>
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-300 mb-4">
+                      Generate for
+                    </label>
+                    <div className="flex gap-6">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input 
+                          type="radio" 
+                          name="generateFor" 
+                          value="single" 
+                          defaultChecked
+                          className="w-4 h-4 text-blue-600 border-slate-600 bg-slate-700"
+                        />
+                        <span className="text-slate-300">Single Employee</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input 
+                          type="radio" 
+                          name="generateFor" 
+                          value="multiple"
+                          className="w-4 h-4 text-blue-600 border-slate-600 bg-slate-700"
+                        />
+                        <span className="text-slate-300">Multiple Employees</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">
+                      Employee Type: <span className="text-slate-400">Current Employees</span>
+                    </label>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">
+                      Search Employee <span className="text-red-400">*</span>
+                    </label>
+                    <div className="relative">
+                      <Input 
+                        className="bg-slate-700/50 border-slate-600 text-white placeholder-slate-400 pl-10"
+                        placeholder="Search by Emp No. / Name"
+                      />
+                      <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+                    </div>
+                  </div>
                 </div>
               )}
 

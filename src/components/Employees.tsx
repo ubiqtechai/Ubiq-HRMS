@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Plus, MoreHorizontal, Edit, Trash2, Eye, ChevronDown, FileText, Users, History, Briefcase, Building } from "lucide-react";
+import { Search, Plus, MoreHorizontal, Edit, Trash2, Eye, FileText, Users, History, Briefcase, Building } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -297,8 +297,11 @@ const Employees = () => {
                           <input type="checkbox" className="rounded border-slate-600 bg-slate-700" />
                         </th>
                         <th className="p-4 text-slate-400 font-medium">NAME</th>
+                        <th className="p-4 text-slate-400 font-medium">EMPLOYEE ID</th>
                         <th className="p-4 text-slate-400 font-medium">DEPARTMENT</th>
                         <th className="p-4 text-slate-400 font-medium">ROLE</th>
+                        <th className="p-4 text-slate-400 font-medium">DOB</th>
+                        <th className="p-4 text-slate-400 font-medium">BLOOD GROUP</th>
                         <th className="p-4 text-slate-400 font-medium">PHONE</th>
                         <th className="p-4 text-slate-400 font-medium">LOCATION</th>
                         <th className="p-4 text-slate-400 font-medium">JOINING DATE</th>
@@ -322,8 +325,11 @@ const Employees = () => {
                               </div>
                             </div>
                           </td>
+                          <td className="p-4 text-slate-300">{employee.employeeId || 'N/A'}</td>
                           <td className="p-4 text-slate-300">{employee.department}</td>
                           <td className="p-4 text-slate-300">{employee.role}</td>
+                          <td className="p-4 text-slate-300">{employee.dateOfBirth || 'N/A'}</td>
+                          <td className="p-4 text-slate-300">{employee.bloodGroup || 'N/A'}</td>
                           <td className="p-4 text-slate-300">{employee.phone}</td>
                           <td className="p-4 text-slate-300">{employee.location}</td>
                           <td className="p-4 text-slate-300">{employee.joiningDate}</td>
@@ -409,81 +415,41 @@ const Employees = () => {
             <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700">
               <CardContent className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="h-24 flex flex-col items-center justify-center gap-2 border-slate-600 hover:bg-slate-700/50 text-slate-300">
-                        <Building className="w-6 h-6" />
-                        <span>Bank</span>
-                        <ChevronDown className="w-4 h-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="bg-slate-800 border-slate-700">
-                      <DropdownMenuItem 
-                        className="text-slate-300 hover:bg-slate-700"
-                        onClick={() => setActiveDocumentView('bank')}
-                      >
-                        <Building className="w-4 h-4 mr-2" />
-                        View Bank Details
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex flex-col items-center justify-center gap-2 border-slate-600 hover:bg-slate-700/50 text-slate-300"
+                    onClick={() => setActiveDocumentView('bank')}
+                  >
+                    <Building className="w-6 h-6" />
+                    <span>Bank Details</span>
+                  </Button>
 
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="h-24 flex flex-col items-center justify-center gap-2 border-slate-600 hover:bg-slate-700/50 text-slate-300">
-                        <Users className="w-6 h-6" />
-                        <span>Family Information</span>
-                        <ChevronDown className="w-4 h-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="bg-slate-800 border-slate-700">
-                      <DropdownMenuItem 
-                        className="text-slate-300 hover:bg-slate-700"
-                        onClick={() => setActiveDocumentView('family')}
-                      >
-                        <Users className="w-4 h-4 mr-2" />
-                        View Family Info
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex flex-col items-center justify-center gap-2 border-slate-600 hover:bg-slate-700/50 text-slate-300"
+                    onClick={() => setActiveDocumentView('family')}
+                  >
+                    <Users className="w-6 h-6" />
+                    <span>Family Information</span>
+                  </Button>
 
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="h-24 flex flex-col items-center justify-center gap-2 border-slate-600 hover:bg-slate-700/50 text-slate-300">
-                        <Briefcase className="w-6 h-6" />
-                        <span>Previous Employment</span>
-                        <ChevronDown className="w-4 h-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="bg-slate-800 border-slate-700">
-                      <DropdownMenuItem 
-                        className="text-slate-300 hover:bg-slate-700"
-                        onClick={() => setActiveDocumentView('employment')}
-                      >
-                        <Briefcase className="w-4 h-4 mr-2" />
-                        View Employment History
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex flex-col items-center justify-center gap-2 border-slate-600 hover:bg-slate-700/50 text-slate-300"
+                    onClick={() => setActiveDocumentView('employment')}
+                  >
+                    <Briefcase className="w-6 h-6" />
+                    <span>Previous Employment</span>
+                  </Button>
 
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="h-24 flex flex-col items-center justify-center gap-2 border-slate-600 hover:bg-slate-700/50 text-slate-300">
-                        <History className="w-6 h-6" />
-                        <span>Position History</span>
-                        <ChevronDown className="w-4 h-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="bg-slate-800 border-slate-700">
-                      <DropdownMenuItem 
-                        className="text-slate-300 hover:bg-slate-700"
-                        onClick={() => setActiveDocumentView('positions')}
-                      >
-                        <History className="w-4 h-4 mr-2" />
-                        View Position History
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex flex-col items-center justify-center gap-2 border-slate-600 hover:bg-slate-700/50 text-slate-300"
+                    onClick={() => setActiveDocumentView('positions')}
+                  >
+                    <History className="w-6 h-6" />
+                    <span>Position History</span>
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -513,24 +479,14 @@ const Employees = () => {
             <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700">
               <CardContent className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="h-24 flex flex-col items-center justify-center gap-2 border-slate-600 hover:bg-slate-700/50 text-slate-300">
-                        <FileText className="w-6 h-6" />
-                        <span>Generate Letter</span>
-                        <ChevronDown className="w-4 h-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="bg-slate-800 border-slate-700">
-                      <DropdownMenuItem 
-                        className="text-slate-300 hover:bg-slate-700"
-                        onClick={() => setActiveAdminView('letter')}
-                      >
-                        <FileText className="w-4 h-4 mr-2" />
-                        Generate Letter
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex flex-col items-center justify-center gap-2 border-slate-600 hover:bg-slate-700/50 text-slate-300"
+                    onClick={() => setActiveAdminView('letter')}
+                  >
+                    <FileText className="w-6 h-6" />
+                    <span>Generate Letter</span>
+                  </Button>
                 </div>
               </CardContent>
             </Card>

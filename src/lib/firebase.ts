@@ -33,6 +33,9 @@ export interface Employee {
   location: string;
   joiningDate: string;
   avatar: string;
+  employeeId: string;
+  dateOfBirth: string;
+  bloodGroup: string;
 }
 
 // Employee CRUD operations
