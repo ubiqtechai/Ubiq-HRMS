@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Plus, MoreHorizontal, Edit, Trash2, Eye, FileText, Users, History, Briefcase, Building } from "lucide-react";
+import { Search, Plus, MoreHorizontal, Edit, Trash2, Eye, FileText, Users, History, Briefcase, Building, FolderOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,6 +17,7 @@ import EmployeeBankDetails from "@/components/EmployeeBankDetails";
 import EmployeeFamilyInfo from "@/components/EmployeeFamilyInfo";
 import EmployeePreviousEmployment from "@/components/EmployeePreviousEmployment";
 import EmployeePositionHistory from "@/components/EmployeePositionHistory";
+import EmployeeDocuments from "@/components/EmployeeDocuments";
 import GenerateLetterForm from "@/components/GenerateLetterForm";
 import {
   AlertDialog,
@@ -458,6 +459,15 @@ const Employees = () => {
                     <History className="w-6 h-6" />
                     <span>Position History</span>
                   </Button>
+
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex flex-col items-center justify-center gap-2 border-slate-600 hover:bg-slate-700/50 text-slate-300"
+                    onClick={() => setActiveDocumentView('documents')}
+                  >
+                    <FolderOpen className="w-6 h-6" />
+                    <span>Employee Documents</span>
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -477,6 +487,7 @@ const Employees = () => {
               {activeDocumentView === 'family' && <EmployeeFamilyInfo />}
               {activeDocumentView === 'employment' && <EmployeePreviousEmployment />}
               {activeDocumentView === 'positions' && <EmployeePositionHistory />}
+              {activeDocumentView === 'documents' && <EmployeeDocuments />}
             </div>
           )}
         </TabsContent>
