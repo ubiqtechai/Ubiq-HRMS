@@ -80,8 +80,11 @@ const GenerateLetterForm = () => {
         console.log("Adding bot message:", botMessage);
         setMessages(prev => [...prev, botMessage]);
         
-        // Update document content with the response
-        setDocumentContent(responseText);
+        // Update document content with the response (strip HTML tags)
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = responseText;
+        const textContent = tempDiv.textContent || tempDiv.innerText || responseText;
+        setDocumentContent(textContent);
       } else {
         console.error("HTTP Error:", response.status, response.statusText);
         const errorText = await response.text();
