@@ -32,9 +32,8 @@ const EmployeeDetailsModal = ({ open, onOpenChange, employee }: EmployeeDetailsM
         </DialogHeader>
         
         <Tabs defaultValue="details" className="mt-4">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="details">Employee Details</TabsTrigger>
-            <TabsTrigger value="documents">Employee Document</TabsTrigger>
             <TabsTrigger value="employee-documents">Employee Documents</TabsTrigger>
           </TabsList>
           
@@ -54,16 +53,6 @@ const EmployeeDetailsModal = ({ open, onOpenChange, employee }: EmployeeDetailsM
             </Card>
           </TabsContent>
           
-          <TabsContent value="documents" className="space-y-4">
-            <Card>
-              <CardContent className="p-4">
-                <div className="text-center text-slate-400">
-                  <p>No documents uploaded yet</p>
-                  <p className="text-sm mt-2">Employee documents will appear here</p>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
           
           <TabsContent value="employee-documents" className="space-y-4">
             <Card>
