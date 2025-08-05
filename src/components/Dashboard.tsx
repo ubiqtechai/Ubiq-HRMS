@@ -60,24 +60,28 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
-        <p className="text-slate-400">Welcome back! Here's what's happening with your team today.</p>
+      <div className="text-center lg:text-left">
+        <h1 className="text-4xl lg:text-5xl font-bold gradient-text mb-4">Dashboard</h1>
+        <p className="text-muted-foreground text-lg">Welcome back! Here's what's happening with your team today.</p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
-          <Card key={index} className="bg-slate-800/50 backdrop-blur-xl border-slate-700 hover:bg-slate-800/70 transition-all duration-300 hover:scale-105">
-            <CardContent className="p-6">
+          <Card key={index} className="glass-card hover-lift group relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <CardContent className="p-6 relative z-10">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-slate-400 text-sm font-medium">{stat.title}</p>
-                  <p className="text-2xl font-bold text-white mt-1">{stat.value}</p>
-                  <p className="text-green-400 text-sm font-medium mt-1">{stat.change} from last month</p>
+                <div className="space-y-2">
+                  <p className="text-muted-foreground text-sm font-medium tracking-wide">{stat.title}</p>
+                  <p className="text-3xl font-bold text-foreground">{stat.value}</p>
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-primary animate-pulse-glow" />
+                    <p className="text-primary text-sm font-semibold">{stat.change} from last month</p>
+                  </div>
                 </div>
-                <div className={`w-12 h-12 ${stat.color} rounded-lg flex items-center justify-center`}>
-                  <stat.icon className="w-6 h-6 text-white" />
+                <div className={`w-14 h-14 ${stat.color} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
+                  <stat.icon className="w-7 h-7 text-white" />
                 </div>
               </div>
             </CardContent>
@@ -87,25 +91,29 @@ const Dashboard = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Activities */}
-        <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700">
-          <CardHeader>
-            <CardTitle className="text-white">Recent Activities</CardTitle>
+        <Card className="glass-card relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-accent" />
+          <CardHeader className="pb-4">
+            <CardTitle className="text-foreground flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-primary animate-pulse-glow" />
+              Recent Activities
+            </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3">
             {recentActivities.map((activity, index) => (
-              <div key={index} className="flex items-center gap-4 p-3 rounded-lg hover:bg-slate-700/50 transition-colors">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-                  <span className="text-white text-sm font-semibold">
+              <div key={index} className="flex items-center gap-4 p-4 rounded-xl hover:bg-accent/10 transition-all duration-300 group">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <span className="text-white text-sm font-bold">
                     {activity.name.split(' ').map(n => n[0]).join('')}
                   </span>
                 </div>
                 <div className="flex-1">
-                  <p className="text-white font-medium">{activity.name}</p>
-                  <p className="text-slate-400 text-sm">{activity.action}</p>
+                  <p className="text-foreground font-semibold">{activity.name}</p>
+                  <p className="text-muted-foreground text-sm">{activity.action}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-slate-400 text-xs">{activity.time}</p>
-                  <div className={`w-2 h-2 rounded-full mt-1 ml-auto ${
+                  <p className="text-muted-foreground text-xs">{activity.time}</p>
+                  <div className={`w-3 h-3 rounded-full mt-1 ml-auto animate-pulse ${
                     activity.status === 'online' ? 'bg-green-400' : 'bg-yellow-400'
                   }`}></div>
                 </div>
@@ -115,9 +123,13 @@ const Dashboard = () => {
         </Card>
 
         {/* Quick Actions */}
-        <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700">
-          <CardHeader>
-            <CardTitle className="text-white">Quick Actions</CardTitle>
+        <Card className="glass-card relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent to-primary" />
+          <CardHeader className="pb-4">
+            <CardTitle className="text-foreground flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-accent animate-pulse-glow" />
+              Quick Actions
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {[
@@ -125,39 +137,43 @@ const Dashboard = () => {
                 title: "Add New Employee", 
                 desc: "Onboard a new team member", 
                 icon: Users, 
-                onClick: () => setShowAddEmployee(true)
+                onClick: () => setShowAddEmployee(true),
+                gradient: "from-blue-500 to-purple-600"
               },
               { 
                 title: "Generate Payroll", 
                 desc: "Process monthly salaries", 
                 icon: DollarSign,
-                onClick: () => setShowGenPayroll(true)
+                onClick: () => setShowGenPayroll(true),
+                gradient: "from-green-500 to-emerald-600"
               },
               { 
                 title: "Attendance Report", 
                 desc: "View team attendance", 
                 icon: Clock,
-                onClick: () => navigate("/attendance")
+                onClick: () => navigate("/attendance"),
+                gradient: "from-orange-500 to-red-600"
               },
               { 
                 title: "Leave Approvals", 
                 desc: "Review pending requests", 
                 icon: Calendar,
-                onClick: () => navigate("/leave")
+                onClick: () => navigate("/leave"),
+                gradient: "from-purple-500 to-pink-600"
               }
             ].map((action, index) => (
               <button
                 key={index}
-                className="w-full flex items-center gap-4 p-3 rounded-lg hover:bg-slate-700/50 transition-all duration-200 hover:scale-105 text-left"
+                className="w-full flex items-center gap-4 p-4 rounded-xl hover:bg-accent/10 transition-all duration-300 hover:scale-105 hover:shadow-lg text-left group"
                 onClick={action.onClick}
                 type="button"
               >
-                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <action.icon className="w-5 h-5 text-white" />
+                <div className={`w-12 h-12 bg-gradient-to-br ${action.gradient} rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                  <action.icon className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <p className="text-white font-medium">{action.title}</p>
-                  <p className="text-slate-400 text-sm">{action.desc}</p>
+                  <p className="text-foreground font-semibold">{action.title}</p>
+                  <p className="text-muted-foreground text-sm">{action.desc}</p>
                 </div>
               </button>
             ))}

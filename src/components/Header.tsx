@@ -32,37 +32,37 @@ const Header = ({ onToggleSidebar, currentPage }: HeaderProps) => {
   }
 
   return (
-    <header className="h-16 bg-slate-900/50 backdrop-blur-xl border-b border-slate-800 flex items-center justify-between px-6">
+    <header className="h-16 glass-card border-b border-border flex items-center justify-between px-6">
       <div className="flex items-center gap-4">
         <Button
           variant="ghost"
           size="sm"
           onClick={onToggleSidebar}
-          className="text-slate-400 hover:text-white hover:bg-slate-800"
+          className="text-muted-foreground hover:text-foreground hover:bg-accent/10 hover:scale-110 transition-all duration-300"
         >
           <Menu className="w-5 h-5" />
         </Button>
         
-        <nav className="flex items-center gap-2 text-sm text-slate-400" aria-label="Breadcrumb">
+        <nav className="flex items-center gap-2 text-sm text-muted-foreground" aria-label="Breadcrumb">
           <span>Home</span>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-white">{getBreadcrumbPage(currentPage)}</span>
+          <span className="text-foreground font-semibold">{getBreadcrumbPage(currentPage)}</span>
         </nav>
       </div>
 
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {/* Notifications dropdown */}
           <Popover open={notifOpen} onOpenChange={setNotifOpen}>
             <PopoverTrigger asChild>
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-slate-400 hover:text-white hover:bg-slate-800 relative"
+                className="text-muted-foreground hover:text-foreground hover:bg-accent/10 relative hover:scale-110 transition-all duration-300"
                 aria-label="Open notifications"
               >
                 <Bell className="w-5 h-5" />
-                <span className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full"></span>
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full animate-pulse-glow"></span>
               </Button>
             </PopoverTrigger>
             <PopoverContent side="bottom" align="end" className="p-0 border-0 bg-transparent w-auto shadow-none" sideOffset={8}>
@@ -70,13 +70,13 @@ const Header = ({ onToggleSidebar, currentPage }: HeaderProps) => {
             </PopoverContent>
           </Popover>
           <div
-            className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center cursor-pointer"
+            className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center cursor-pointer hover:scale-110 transition-all duration-300 shadow-lg hover:shadow-xl"
             onClick={handleProfileClick}
             title="Profile"
             tabIndex={0}
             role="button"
           >
-            <span className="text-white text-sm font-semibold">A</span>
+            <span className="text-white text-sm font-bold">A</span>
           </div>
         </div>
       </div>
