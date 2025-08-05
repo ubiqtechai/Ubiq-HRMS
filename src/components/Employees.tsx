@@ -229,7 +229,7 @@ const Employees = () => {
             className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-slate-300"
           >
             <FileText className="w-4 h-4 mr-2" />
-            Employee Details
+            Employee Documents
           </TabsTrigger>
           <TabsTrigger 
             value="admin" 
@@ -419,66 +419,48 @@ const Employees = () => {
 
         {/* Employee Documents Tab Content */}
         <TabsContent value="documents" className="space-y-6">
-          {!activeDocumentView && (
-            <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700">
-              <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <Button 
-                    variant="outline" 
-                    className="h-24 flex flex-col items-center justify-center gap-2 border-slate-600 hover:bg-slate-700/50 text-slate-300"
-                    onClick={() => setActiveDocumentView('bank')}
-                  >
-                    <Building className="w-6 h-6" />
-                    <span>Bank Details</span>
-                  </Button>
-
-                  <Button 
-                    variant="outline" 
-                    className="h-24 flex flex-col items-center justify-center gap-2 border-slate-600 hover:bg-slate-700/50 text-slate-300"
-                    onClick={() => setActiveDocumentView('family')}
-                  >
-                    <Users className="w-6 h-6" />
-                    <span>Family Information</span>
-                  </Button>
-
-                  <Button 
-                    variant="outline" 
-                    className="h-24 flex flex-col items-center justify-center gap-2 border-slate-600 hover:bg-slate-700/50 text-slate-300"
-                    onClick={() => setActiveDocumentView('employment')}
-                  >
-                    <Briefcase className="w-6 h-6" />
-                    <span>Previous Employment</span>
-                  </Button>
-
-                  <Button 
-                    variant="outline" 
-                    className="h-24 flex flex-col items-center justify-center gap-2 border-slate-600 hover:bg-slate-700/50 text-slate-300"
-                    onClick={() => setActiveDocumentView('positions')}
-                  >
-                    <History className="w-6 h-6" />
-                    <span>Position History</span>
-                  </Button>
+          <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700">
+            <CardContent className="p-6">
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-white font-medium text-lg">Employee Document Management</h3>
+                  <div className="flex gap-2">
+                    <input
+                      type="file"
+                      id="bulk-document-upload"
+                      className="hidden"
+                      multiple
+                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                    />
+                    <label
+                      htmlFor="bulk-document-upload"
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md cursor-pointer hover:bg-blue-700 text-sm flex items-center gap-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Upload Documents
+                    </label>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Render the active document view */}
-          {activeDocumentView && (
-            <div>
-              <Button 
-                variant="outline" 
-                onClick={() => setActiveDocumentView(null)}
-                className="mb-4 border-slate-600 text-slate-300 hover:bg-slate-700/50"
-              >
-                ← Back to Documents
-              </Button>
-              {activeDocumentView === 'bank' && <EmployeeBankDetails />}
-              {activeDocumentView === 'family' && <EmployeeFamilyInfo />}
-              {activeDocumentView === 'employment' && <EmployeePreviousEmployment />}
-              {activeDocumentView === 'positions' && <EmployeePositionHistory />}
-            </div>
-          )}
+                
+                <div className="border border-slate-600 rounded-lg">
+                  <div className="grid grid-cols-6 gap-4 p-3 bg-slate-700/50 text-sm font-medium text-slate-300 border-b border-slate-600">
+                    <div>Document Name</div>
+                    <div>Employee</div>
+                    <div>Type</div>
+                    <div>Upload Date</div>
+                    <div>Size</div>
+                    <div>Actions</div>
+                  </div>
+                  
+                  <div className="p-8 text-center text-slate-400">
+                    <FileText className="w-12 h-12 mx-auto mb-4 text-slate-500" />
+                    <p className="text-lg mb-2">No documents uploaded yet</p>
+                    <p className="text-sm">Upload employee documents using the button above</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* Admin Tab Content */}
