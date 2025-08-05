@@ -229,7 +229,7 @@ const Employees = () => {
             className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-slate-300"
           >
             <FileText className="w-4 h-4 mr-2" />
-            Employee Documents
+            Employee Details
           </TabsTrigger>
           <TabsTrigger 
             value="admin" 
