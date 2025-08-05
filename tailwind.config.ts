@@ -18,17 +18,6 @@ export default {
 			}
 		},
 		extend: {
-			backgroundImage: {
-				'gradient-primary': 'var(--gradient-primary)',
-				'gradient-subtle': 'var(--gradient-subtle)',
-			},
-			boxShadow: {
-				'soft': 'var(--shadow-soft)',
-				'glow': 'var(--shadow-glow)',
-			},
-			transitionTimingFunction: {
-				'smooth': 'var(--transition-smooth)',
-			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -37,8 +26,7 @@ export default {
 				foreground: 'hsl(var(--foreground))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))',
-					glow: 'hsl(var(--primary-glow))'
+					foreground: 'hsl(var(--primary-foreground))'
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
