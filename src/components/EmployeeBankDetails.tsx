@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { Edit } from "lucide-react";
+import { Edit, Plus, Search, Filter } from "lucide-react";
 
 interface BankDetails {
   id: string;
@@ -51,9 +51,14 @@ const mockBankDetails: BankDetails[] = [
 
 const EmployeeBankDetails = () => {
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isAddMode, setIsAddMode] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<BankDetails | null>(null);
-  const [employees] = useState<BankDetails[]>(mockBankDetails);
+  const [employees, setEmployees] = useState<BankDetails[]>(mockBankDetails);
   const [formData, setFormData] = useState<Partial<BankDetails>>({});
+  const [searchTerm, setSearchTerm] = useState("");
+  const [accountTypeFilter, setAccountTypeFilter] = useState("");
+  const [paymentTypeFilter, setPaymentTypeFilter] = useState("");
+  const [bankNameFilter, setBankNameFilter] = useState("");
 
   useEffect(() => {
     if (employees.length > 0) {
@@ -68,11 +73,43 @@ const EmployeeBankDetails = () => {
     }
   };
 
+  const handleAdd = () => {
+    setFormData({
+      employeeName: "",
+      bankName: "",
+      bankBranch: "",
+      accountNumber: "",
+      ifscCode: "",
+      iban: "",
+      accountType: "",
+      paymentType: "",
+      ddPayableAt: "",
+      nameAsPerBank: ""
+    });
+    setIsAddMode(true);
+    setIsEditMode(true);
+  };
+
   const handleSave = () => {
     console.log("Saving bank details:", formData);
-    // Here you would save to your database
-    if (selectedEmployee) {
+    
+    if (isAddMode) {
+      // Add new bank details
+      const newBankDetails: BankDetails = {
+        id: Date.now().toString(),
+        ...formData as BankDetails
+      };
+      const updatedEmployees = [...employees, newBankDetails];
+      setEmployees(updatedEmployees);
+      setSelectedEmployee(newBankDetails);
+      setIsAddMode(false);
+    } else if (selectedEmployee) {
+      // Update existing bank details
       const updatedEmployee = { ...selectedEmployee, ...formData };
+      const updatedEmployees = employees.map(emp => 
+        emp.id === selectedEmployee.id ? updatedEmployee : emp
+      );
+      setEmployees(updatedEmployees);
       setSelectedEmployee(updatedEmployee);
     }
     setIsEditMode(false);
@@ -81,7 +118,21 @@ const EmployeeBankDetails = () => {
   const handleCancel = () => {
     setFormData({});
     setIsEditMode(false);
+    setIsAddMode(false);
   };
+
+  // Filter employees based on search and filters
+  const filteredEmployees = employees.filter(employee => {
+    const matchesSearch = employee.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         employee.bankName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         employee.accountNumber.includes(searchTerm);
+    
+    const matchesAccountType = !accountTypeFilter || employee.accountType === accountTypeFilter;
+    const matchesPaymentType = !paymentTypeFilter || employee.paymentType === paymentTypeFilter;
+    const matchesBankName = !bankNameFilter || employee.bankName === bankNameFilter;
+    
+    return matchesSearch && matchesAccountType && matchesPaymentType && matchesBankName;
+  });
 
   const handleInputChange = (field: keyof BankDetails, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -92,7 +143,9 @@ const EmployeeBankDetails = () => {
       <div className="space-y-6 animate-fade-in">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-white mb-2">Edit Bank Account</h2>
+            <h2 className="text-2xl font-bold text-white mb-2">
+              {isAddMode ? "Add Bank Account" : "Edit Bank Account"}
+            </h2>
           </div>
           <Button 
             variant="outline" 
@@ -106,6 +159,19 @@ const EmployeeBankDetails = () => {
         
         <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700">
           <CardContent className="p-6">
+            {isAddMode && (
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Employee Name
+                </label>
+                <Input 
+                  className="bg-slate-700/50 border-slate-600 text-white placeholder-slate-400 max-w-md"
+                  placeholder="Employee Name"
+                  value={formData.employeeName || ""}
+                  onChange={(e) => handleInputChange('employeeName', e.target.value)}
+                />
+              </div>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">
@@ -261,23 +327,83 @@ const EmployeeBankDetails = () => {
           <h2 className="text-2xl font-bold text-white mb-2">Bank Details</h2>
         </div>
         <div className="flex gap-2">
-          <Select value={selectedEmployee?.id || ""} onValueChange={(value) => {
-            const employee = employees.find(emp => emp.id === value);
-            setSelectedEmployee(employee || null);
-          }}>
-            <SelectTrigger className="bg-slate-700/50 border-slate-600 text-white w-48">
-              <SelectValue placeholder="Select Employee" />
-            </SelectTrigger>
-            <SelectContent className="bg-slate-800 border-slate-600">
-              {employees.map((employee) => (
-                <SelectItem key={employee.id} value={employee.id}>
-                  {employee.employeeName}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Button
+            onClick={handleAdd}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Bank Details
+          </Button>
         </div>
       </div>
+      
+      {/* Search and Filters */}
+      <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700">
+        <CardContent className="p-4">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+              <Input
+                placeholder="Search by name, bank, or account..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="bg-slate-700/50 border-slate-600 text-white placeholder-slate-400 pl-10"
+              />
+            </div>
+            
+            <Select value={accountTypeFilter} onValueChange={setAccountTypeFilter}>
+              <SelectTrigger className="bg-slate-700/50 border-slate-600 text-white">
+                <SelectValue placeholder="Account Type" />
+              </SelectTrigger>
+              <SelectContent className="bg-slate-800 border-slate-600">
+                <SelectItem value="">All Types</SelectItem>
+                <SelectItem value="Savings">Savings</SelectItem>
+                <SelectItem value="Current">Current</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            <Select value={paymentTypeFilter} onValueChange={setPaymentTypeFilter}>
+              <SelectTrigger className="bg-slate-700/50 border-slate-600 text-white">
+                <SelectValue placeholder="Payment Type" />
+              </SelectTrigger>
+              <SelectContent className="bg-slate-800 border-slate-600">
+                <SelectItem value="">All Payments</SelectItem>
+                <SelectItem value="NEFT">NEFT</SelectItem>
+                <SelectItem value="RTGS">RTGS</SelectItem>
+                <SelectItem value="IMPS">IMPS</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            <Select value={bankNameFilter} onValueChange={setBankNameFilter}>
+              <SelectTrigger className="bg-slate-700/50 border-slate-600 text-white">
+                <SelectValue placeholder="Bank Name" />
+              </SelectTrigger>
+              <SelectContent className="bg-slate-800 border-slate-600">
+                <SelectItem value="">All Banks</SelectItem>
+                <SelectItem value="State Bank of India">State Bank of India</SelectItem>
+                <SelectItem value="HDFC Bank">HDFC Bank</SelectItem>
+                <SelectItem value="ICICI Bank">ICICI Bank</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            <Select value={selectedEmployee?.id || ""} onValueChange={(value) => {
+              const employee = filteredEmployees.find(emp => emp.id === value);
+              setSelectedEmployee(employee || null);
+            }}>
+              <SelectTrigger className="bg-slate-700/50 border-slate-600 text-white">
+                <SelectValue placeholder="Select Employee" />
+              </SelectTrigger>
+              <SelectContent className="bg-slate-800 border-slate-600">
+                {filteredEmployees.map((employee) => (
+                  <SelectItem key={employee.id} value={employee.id}>
+                    {employee.employeeName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
       
       {selectedEmployee && (
         <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700">
