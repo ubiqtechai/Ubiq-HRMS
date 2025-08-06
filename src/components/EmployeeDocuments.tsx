@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Upload, Download, Trash2, FileText, Plus } from "lucide-react";
+import { Upload, Download, Trash2, FileText, Plus, Edit2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -60,6 +61,9 @@ const EmployeeDocuments = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [documentToDelete, setDocumentToDelete] = useState<string | null>(null);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedEmployee, setSelectedEmployee] = useState("all-employees");
+  const [typeFilter, setTypeFilter] = useState("all-types");
 
   const handleDeleteDocument = () => {
     if (documentToDelete) {
@@ -87,6 +91,17 @@ const EmployeeDocuments = () => {
       setUploadDialogOpen(false);
     }
   };
+
+  const handleEditDocument = (id: string) => {
+    console.log("Edit document:", id);
+  };
+
+  const filteredDocuments = documents.filter(document => {
+    const matchesSearch = document.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         document.type.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = typeFilter === "all-types" || document.type === typeFilter;
+    return matchesSearch && matchesType;
+  });
 
   const getFileIcon = (type: string) => {
     return <FileText className="w-5 h-5 text-blue-400" />;
@@ -144,20 +159,50 @@ const EmployeeDocuments = () => {
         </Dialog>
       </div>
 
+      {/* Filters */}
+      <div className="flex gap-4 flex-wrap">
+        <Input
+          placeholder="Search documents..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-sm bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
+        />
+        <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
+          <SelectTrigger className="w-48 bg-slate-700/50 border-slate-600 text-white">
+            <SelectValue placeholder="Select Employee" />
+          </SelectTrigger>
+          <SelectContent className="bg-slate-800 border-slate-700">
+            <SelectItem value="all-employees" className="text-white">All Employees</SelectItem>
+            <SelectItem value="john-doe" className="text-white">John Doe</SelectItem>
+            <SelectItem value="jane-smith" className="text-white">Jane Smith</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={typeFilter} onValueChange={setTypeFilter}>
+          <SelectTrigger className="w-48 bg-slate-700/50 border-slate-600 text-white">
+            <SelectValue placeholder="Filter by Type" />
+          </SelectTrigger>
+          <SelectContent className="bg-slate-800 border-slate-700">
+            <SelectItem value="all-types" className="text-white">All Types</SelectItem>
+            <SelectItem value="PDF" className="text-white">PDF</SelectItem>
+            <SelectItem value="IMAGE" className="text-white">Image</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* Documents List */}
       <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700">
         <CardHeader>
           <CardTitle className="text-white">Documents</CardTitle>
         </CardHeader>
         <CardContent>
-          {documents.length === 0 ? (
+          {filteredDocuments.length === 0 ? (
             <div className="text-center py-8">
               <FileText className="w-12 h-12 text-slate-500 mx-auto mb-4" />
               <p className="text-slate-400">No documents uploaded yet</p>
             </div>
           ) : (
             <div className="space-y-3">
-              {documents.map((document) => (
+              {filteredDocuments.map((document) => (
                 <div
                   key={document.id}
                   className="flex items-center justify-between p-4 border border-slate-700 rounded-lg hover:bg-slate-700/30 transition-colors"
@@ -176,9 +221,16 @@ const EmployeeDocuments = () => {
                     <Button
                       variant="ghost"
                       size="sm"
+                      className="text-blue-400 hover:text-blue-300 hover:bg-blue-600/20"
+                      onClick={() => handleEditDocument(document.id)}
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       className="text-slate-400 hover:text-white"
                       onClick={() => {
-                        // Download functionality would be implemented here
                         console.log(`Downloading ${document.name}`);
                       }}
                     >

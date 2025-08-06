@@ -2,11 +2,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Edit2, Trash2 } from "lucide-react";
 import { useState } from "react";
 import AddPositionModal from "./AddPositionModal";
 
 const EmployeePositionHistory = () => {
   const [isAddPositionOpen, setIsAddPositionOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedEmployee, setSelectedEmployee] = useState("all-employees");
+  const [departmentFilter, setDepartmentFilter] = useState("all-departments");
+  const [statusFilter, setStatusFilter] = useState("all-statuses");
   const [positionHistory, setPositionHistory] = useState([
     {
       id: 1,
@@ -53,6 +60,23 @@ const EmployeePositionHistory = () => {
     ]);
   };
 
+  const handleEditPosition = (id: number) => {
+    console.log("Edit position:", id);
+  };
+
+  const handleDeletePosition = (id: number) => {
+    setPositionHistory(prev => prev.filter(position => position.id !== id));
+  };
+
+  const filteredPositions = positionHistory.filter(position => {
+    const matchesSearch = position.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         position.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         position.manager.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesDepartment = departmentFilter === "all-departments" || position.department === departmentFilter;
+    const matchesStatus = statusFilter === "all-statuses" || position.status === statusFilter;
+    return matchesSearch && matchesDepartment && matchesStatus;
+  });
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
@@ -66,6 +90,46 @@ const EmployeePositionHistory = () => {
         >
           Add Position
         </Button>
+      </div>
+      
+      <div className="flex gap-4 flex-wrap">
+        <Input
+          placeholder="Search positions..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-sm bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400"
+        />
+        <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
+          <SelectTrigger className="w-48 bg-slate-700/50 border-slate-600 text-white">
+            <SelectValue placeholder="Select Employee" />
+          </SelectTrigger>
+          <SelectContent className="bg-slate-800 border-slate-700">
+            <SelectItem value="all-employees" className="text-white">All Employees</SelectItem>
+            <SelectItem value="john-doe" className="text-white">John Doe</SelectItem>
+            <SelectItem value="jane-smith" className="text-white">Jane Smith</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+          <SelectTrigger className="w-48 bg-slate-700/50 border-slate-600 text-white">
+            <SelectValue placeholder="Filter by Department" />
+          </SelectTrigger>
+          <SelectContent className="bg-slate-800 border-slate-700">
+            <SelectItem value="all-departments" className="text-white">All Departments</SelectItem>
+            <SelectItem value="Engineering" className="text-white">Engineering</SelectItem>
+            <SelectItem value="HR" className="text-white">HR</SelectItem>
+            <SelectItem value="Finance" className="text-white">Finance</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-48 bg-slate-700/50 border-slate-600 text-white">
+            <SelectValue placeholder="Filter by Status" />
+          </SelectTrigger>
+          <SelectContent className="bg-slate-800 border-slate-700">
+            <SelectItem value="all-statuses" className="text-white">All Statuses</SelectItem>
+            <SelectItem value="Active" className="text-white">Active</SelectItem>
+            <SelectItem value="Completed" className="text-white">Completed</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       
       <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700">
@@ -84,7 +148,7 @@ const EmployeePositionHistory = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {positionHistory.map((position) => (
+              {filteredPositions.map((position) => (
                 <TableRow key={position.id} className="border-slate-700 hover:bg-slate-700/50">
                   <TableCell className="text-slate-300 font-medium">{position.position}</TableCell>
                   <TableCell className="text-slate-300">{position.department}</TableCell>
@@ -107,17 +171,19 @@ const EmployeePositionHistory = () => {
                     <div className="flex gap-2">
                       <Button 
                         size="sm" 
-                        variant="outline" 
-                        className="text-slate-300 border-slate-600 hover:bg-slate-700 h-8"
+                        variant="ghost" 
+                        onClick={() => handleEditPosition(position.id)}
+                        className="text-blue-400 hover:text-blue-300 hover:bg-blue-600/20 h-8 w-8 p-0"
                       >
-                        Edit
+                        <Edit2 className="w-4 h-4" />
                       </Button>
                       <Button 
                         size="sm" 
-                        variant="outline" 
-                        className="text-red-400 border-red-600 hover:bg-red-600/20 h-8"
+                        variant="ghost" 
+                        onClick={() => handleDeletePosition(position.id)}
+                        className="text-red-400 hover:text-red-300 hover:bg-red-600/20 h-8 w-8 p-0"
                       >
-                        Delete
+                        <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
                   </TableCell>
