@@ -10,16 +10,17 @@ interface Props {
 }
 
 export default function DocumentEditor({ content, onContentChange }: Props) {
+  // 1) initialize with the incoming HTML
   const editor = useEditor({
     extensions: [StarterKit, Underline],
-    content,                  // initial load
+    content,
     onUpdate: ({ editor }) => {
-      // bubble edits back to parent
+      // 3) report edits back up so the parent state stays in sync
       onContentChange(editor.getHTML())
     },
   })
 
-  // when parent’s content prop changes, overwrite the editor state
+  // 2) whenever the `content` prop changes, overwrite the editor
   useEffect(() => {
     if (!editor) return
     if (editor.getHTML() !== content) {
