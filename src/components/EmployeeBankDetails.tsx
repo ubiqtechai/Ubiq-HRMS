@@ -127,9 +127,9 @@ const EmployeeBankDetails = () => {
                          employee.bankName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          employee.accountNumber.includes(searchTerm);
     
-    const matchesAccountType = !accountTypeFilter || employee.accountType === accountTypeFilter;
-    const matchesPaymentType = !paymentTypeFilter || employee.paymentType === paymentTypeFilter;
-    const matchesBankName = !bankNameFilter || employee.bankName === bankNameFilter;
+    const matchesAccountType = accountTypeFilter === "all-types" || !accountTypeFilter || employee.accountType === accountTypeFilter;
+    const matchesPaymentType = paymentTypeFilter === "all-payments" || !paymentTypeFilter || employee.paymentType === paymentTypeFilter;
+    const matchesBankName = bankNameFilter === "all-banks" || !bankNameFilter || employee.bankName === bankNameFilter;
     
     return matchesSearch && matchesAccountType && matchesPaymentType && matchesBankName;
   });
@@ -356,7 +356,7 @@ const EmployeeBankDetails = () => {
                 <SelectValue placeholder="Account Type" />
               </SelectTrigger>
               <SelectContent className="bg-slate-800 border-slate-600">
-                <SelectItem value="">All Types</SelectItem>
+                <SelectItem value="all-types">All Types</SelectItem>
                 <SelectItem value="Savings">Savings</SelectItem>
                 <SelectItem value="Current">Current</SelectItem>
               </SelectContent>
@@ -367,7 +367,7 @@ const EmployeeBankDetails = () => {
                 <SelectValue placeholder="Payment Type" />
               </SelectTrigger>
               <SelectContent className="bg-slate-800 border-slate-600">
-                <SelectItem value="">All Payments</SelectItem>
+                <SelectItem value="all-payments">All Payments</SelectItem>
                 <SelectItem value="NEFT">NEFT</SelectItem>
                 <SelectItem value="RTGS">RTGS</SelectItem>
                 <SelectItem value="IMPS">IMPS</SelectItem>
@@ -379,7 +379,7 @@ const EmployeeBankDetails = () => {
                 <SelectValue placeholder="Bank Name" />
               </SelectTrigger>
               <SelectContent className="bg-slate-800 border-slate-600">
-                <SelectItem value="">All Banks</SelectItem>
+                <SelectItem value="all-banks">All Banks</SelectItem>
                 <SelectItem value="State Bank of India">State Bank of India</SelectItem>
                 <SelectItem value="HDFC Bank">HDFC Bank</SelectItem>
                 <SelectItem value="ICICI Bank">ICICI Bank</SelectItem>
