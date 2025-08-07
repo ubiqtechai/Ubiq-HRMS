@@ -10,17 +10,14 @@ interface Props {
 }
 
 export default function DocumentEditor({ content, onContentChange }: Props) {
-  // 1) initialize with the incoming HTML
   const editor = useEditor({
     extensions: [StarterKit, Underline],
     content,
     onUpdate: ({ editor }) => {
-      // 3) report edits back up so the parent state stays in sync
       onContentChange(editor.getHTML())
     },
   })
 
-  // 2) whenever the `content` prop changes, overwrite the editor
   useEffect(() => {
     if (!editor) return
     if (editor.getHTML() !== content) {
@@ -28,5 +25,11 @@ export default function DocumentEditor({ content, onContentChange }: Props) {
     }
   }, [content, editor])
 
-  return <EditorContent editor={editor} />
+  return (
+    <EditorContent
+      key={content.slice(0, 20)} // key helps re-render when new letter arrives
+      editor={editor}
+      className="p-4"
+    />
+  )
 }
