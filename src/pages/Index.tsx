@@ -58,7 +58,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="flex">
         <Sidebar 
           isOpen={sidebarOpen}
@@ -99,7 +99,7 @@ const Index = () => {
               <Route path="/leave/holiday-calendar" element={<HolidayCalendarPage />} />
               {/* fallback: unknown pages */}
               <Route path="*" element={
-                <div className="text-center pt-20 text-slate-400 text-2xl">
+                <div className="text-center pt-20 text-muted-foreground text-2xl">
                   404 – Page Not Found
                 </div>
               } />
