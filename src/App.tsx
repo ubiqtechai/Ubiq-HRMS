@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./components/Dashboard";
@@ -17,18 +18,20 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          {/* Only Index handles the main layout and routing */}
-          <Route path="/*" element={<Index />} />
-          {/* Only keep NotFound as a catch-all if needed (but Index handles most routes) */}
-          {/* <Route path="*" element={<NotFound />} /> */}
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <ThemeProvider defaultTheme="light" storageKey="hrms-theme">
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            {/* Only Index handles the main layout and routing */}
+            <Route path="/*" element={<Index />} />
+            {/* Only keep NotFound as a catch-all if needed (but Index handles most routes) */}
+            {/* <Route path="*" element={<NotFound />} /> */}
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

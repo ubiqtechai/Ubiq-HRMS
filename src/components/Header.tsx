@@ -7,6 +7,7 @@ import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import NotificationsDropdown from "./NotificationsDropdown";
+import { ThemeToggle } from "./ThemeToggle";
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -52,6 +53,9 @@ const Header = ({ onToggleSidebar, currentPage }: HeaderProps) => {
 
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-3">
+          {/* Theme toggle */}
+          <ThemeToggle />
+          
           {/* Notifications dropdown */}
           <Popover open={notifOpen} onOpenChange={setNotifOpen}>
             <PopoverTrigger asChild>
