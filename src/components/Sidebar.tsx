@@ -62,23 +62,23 @@ const Sidebar = ({ isOpen, onToggle, currentPage, onPageChange }: SidebarProps) 
   };
 
   return (
-    <div className={`fixed left-0 top-0 h-full glass-card border-r border-border transition-all duration-500 z-50 ${
+    <div className={`fixed left-0 top-0 h-full bg-card border-r border-border transition-all duration-300 z-50 ${
       isOpen ? 'w-64' : 'w-16'
-    } backdrop-blur-xl`}>
-      <div className="p-4">
+    }`}>
+      <div className="p-6">
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center shadow-lg animate-pulse-glow">
-            <span className="text-white font-bold text-sm">HR</span>
+          <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+            <span className="text-primary-foreground font-bold text-sm">UB</span>
           </div>
           {isOpen && (
-            <div className="animate-slide-in">
-              <h1 className="text-xl font-bold gradient-text">UBIQ</h1>
-              <p className="text-xs text-muted-foreground">Human Resource Management</p>
+            <div>
+              <h1 className="text-lg font-semibold text-foreground">UBIQ</h1>
+              <p className="text-sm text-muted-foreground">Human Resource Management</p>
             </div>
           )}
         </div>
 
-        <nav className="space-y-2">
+        <nav className="space-y-1">
           {menuItems.map((item) => (
             <div key={item.name}>
                 <button
@@ -90,17 +90,17 @@ const Sidebar = ({ isOpen, onToggle, currentPage, onPageChange }: SidebarProps) 
                     navigate(item.href);
                   }
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 hover:scale-105 group relative overflow-hidden ${
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group ${
                   isMenuActive(item)
-                    ? 'bg-gradient-to-r from-primary to-accent text-white shadow-lg'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-accent/10'
+                    ? 'bg-primary text-primary-foreground font-medium'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-accent'
                 }`}
                 type="button"
               >
                 <item.icon className="w-5 h-5 flex-shrink-0" />
                 {isOpen && (
                   <>
-                    <span className="flex-1 text-left">{item.name}</span>
+                    <span className="flex-1 text-left text-sm">{item.name}</span>
                     {item.children.length > 0 && (
                       <ChevronRight 
                         className={`w-4 h-4 transition-transform ${
@@ -113,11 +113,11 @@ const Sidebar = ({ isOpen, onToggle, currentPage, onPageChange }: SidebarProps) 
               </button>
               
               {isOpen && expandedItems.includes(item.name) && item.children.length > 0 && (
-                <div className="ml-8 mt-2 space-y-1 animate-slide-in">
+                <div className="ml-6 mt-1 space-y-1">
                   {item.children.map((child) => (
                     <button
                       key={child.title}
-                      className="w-full text-left px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/20 rounded-lg transition-all duration-300 hover:scale-105"
+                      className="w-full text-left px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-all duration-200"
                       type="button"
                       onClick={() => navigate(child.href)}
                     >
