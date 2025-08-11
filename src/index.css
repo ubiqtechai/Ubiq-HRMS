@@ -198,6 +198,64 @@
     transform: translateY(-8px);
     box-shadow: var(--shadow-elegant);
   }
+
+  /* Light theme utility overrides to map legacy slate/gray/zinc classes to design tokens */
+  .light .bg-slate-900,
+  .light .bg-slate-800,
+  .light .bg-slate-700,
+  .light .bg-zinc-900,
+  .light .bg-zinc-800,
+  .light .bg-zinc-700 { background-color: hsl(var(--card)) !important; }
+
+  .light .bg-slate-800\/50,
+  .light .bg-slate-700\/50,
+  .light .bg-zinc-800\/50,
+  .light .bg-zinc-700\/50 { background-color: hsl(var(--muted)) !important; }
+
+  .light .bg-slate-700\/30,
+  .light .bg-zinc-700\/30 { background-color: hsl(var(--muted) / 0.3) !important; }
+  .light .hover\:bg-slate-700\/30:hover,
+  .light .hover\:bg-zinc-700\/30:hover { background-color: hsl(var(--muted) / 0.3) !important; }
+
+  .light .bg-slate-800\/70,
+  .light .bg-zinc-800\/70 { background-color: hsl(var(--muted) / 0.7) !important; }
+  .light .hover\:bg-slate-800\/70:hover,
+  .light .hover\:bg-zinc-800\/70:hover { background-color: hsl(var(--muted) / 0.7) !important; }
+
+  .light .bg-gray-50,
+  .light .bg-gray-100,
+  .light .bg-gray-200 { background-color: hsl(var(--background)) !important; }
+
+  .light .border-slate-700,
+  .light .border-slate-600,
+  .light .border-gray-200,
+  .light .border-gray-300,
+  .light .border-zinc-700,
+  .light .border-zinc-600 { border-color: hsl(var(--border)) !important; }
+
+  .light .text-white { color: hsl(var(--foreground)) !important; }
+  .light .text-slate-200,
+  .light .text-slate-300,
+  .light .text-slate-400,
+  .light .text-slate-500,
+  .light .text-gray-400,
+  .light .text-gray-500,
+  .light .text-zinc-400,
+  .light .text-zinc-500 { color: hsl(var(--muted-foreground)) !important; }
+
+  .light input.bg-slate-700,
+  .light textarea.bg-slate-700,
+  .light select.bg-slate-700,
+  .light input.bg-zinc-700,
+  .light textarea.bg-zinc-700,
+  .light select.bg-zinc-700 { background-color: hsl(var(--background)) !important; }
+
+  .light .placeholder-slate-400::placeholder,
+  .light .placeholder-gray-400::placeholder,
+  .light .placeholder-zinc-400::placeholder { color: hsl(var(--muted-foreground)) !important; }
+
+  .light .bg-blue-600 { background-color: hsl(var(--primary)) !important; }
+  .light .hover\:bg-blue-700:hover { background-color: hsl(var(--ring)) !important; }
 }
 
 @keyframes fadeIn {
@@ -253,20 +311,21 @@
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #1e293b;
+  background: hsl(var(--muted));
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #475569;
-  border-radius: 3px;
+  background: hsl(var(--muted-foreground) / 0.5);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
+  background: hsl(var(--muted-foreground) / 0.7);
 }
 
 /* Recharts customization */
@@ -275,8 +334,8 @@
 }
 
 .recharts-default-tooltip {
-  background-color: #1e293b !important;
-  border: 1px solid #334155 !important;
+  background-color: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--border)) !important;
   border-radius: 8px !important;
-  color: #ffffff !important;
+  color: hsl(var(--card-foreground)) !important;
 }
