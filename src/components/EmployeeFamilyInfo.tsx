@@ -9,6 +9,7 @@ import AddFamilyMemberModal, { FamilyMember } from "@/components/AddFamilyMember
 
 const EmployeeFamilyInfo = () => {
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingMember, setEditingMember] = useState<FamilyMember | null>(null);
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([
     {
       id: "1",
@@ -40,15 +41,28 @@ const EmployeeFamilyInfo = () => {
   const [relationFilter, setRelationFilter] = useState("all-relations");
 
   const handleAddFamilyMember = (member: FamilyMember) => {
-    const newMember = {
-      ...member,
-      id: Date.now().toString(),
-    };
-    setFamilyMembers(prev => [...prev, newMember]);
+    if (editingMember) {
+      // Edit existing member
+      setFamilyMembers(prev => prev.map(m => 
+        m.id === editingMember.id ? { ...member, id: editingMember.id } : m
+      ));
+      setEditingMember(null);
+    } else {
+      // Add new member
+      const newMember = {
+        ...member,
+        id: Date.now().toString(),
+      };
+      setFamilyMembers(prev => [...prev, newMember]);
+    }
   };
 
   const handleEditMember = (id: string) => {
-    console.log("Edit member:", id);
+    const member = familyMembers.find(m => m.id === id);
+    if (member) {
+      setEditingMember(member);
+      setShowAddModal(true);
+    }
   };
 
   const handleDeleteMember = (id: string) => {
@@ -66,8 +80,12 @@ const EmployeeFamilyInfo = () => {
     <div className="space-y-6 animate-fade-in">
       <AddFamilyMemberModal
         open={showAddModal}
-        onOpenChange={setShowAddModal}
+        onOpenChange={(open) => {
+          setShowAddModal(open);
+          if (!open) setEditingMember(null);
+        }}
         onAddFamilyMember={handleAddFamilyMember}
+        editingMember={editingMember}
       />
       
       <div className="flex items-center justify-between gap-4">

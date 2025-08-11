@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ interface AddFamilyMemberModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onAddFamilyMember: (member: FamilyMember) => void;
+  editingMember?: FamilyMember | null;
 }
 
 export interface FamilyMember {
@@ -24,7 +25,7 @@ export interface FamilyMember {
   remarks: string;
 }
 
-const AddFamilyMemberModal = ({ open, onOpenChange, onAddFamilyMember }: AddFamilyMemberModalProps) => {
+const AddFamilyMemberModal = ({ open, onOpenChange, onAddFamilyMember, editingMember }: AddFamilyMemberModalProps) => {
   const [formData, setFormData] = useState<Omit<FamilyMember, 'id' | 'age'>>({
     name: "",
     relation: "",
@@ -35,6 +36,33 @@ const AddFamilyMemberModal = ({ open, onOpenChange, onAddFamilyMember }: AddFami
     profession: "",
     remarks: "",
   });
+
+  // Update form data when editing member changes
+  useEffect(() => {
+    if (editingMember) {
+      setFormData({
+        name: editingMember.name,
+        relation: editingMember.relation,
+        dateOfBirth: editingMember.dateOfBirth,
+        bloodGroup: editingMember.bloodGroup,
+        gender: editingMember.gender,
+        nationality: editingMember.nationality,
+        profession: editingMember.profession,
+        remarks: editingMember.remarks,
+      });
+    } else {
+      setFormData({
+        name: "",
+        relation: "",
+        dateOfBirth: "",
+        bloodGroup: "",
+        gender: "",
+        nationality: "",
+        profession: "",
+        remarks: "",
+      });
+    }
+  }, [editingMember]);
 
   const calculateAge = (dateOfBirth: string) => {
     if (!dateOfBirth) return 0;
@@ -76,7 +104,9 @@ const AddFamilyMemberModal = ({ open, onOpenChange, onAddFamilyMember }: AddFami
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-slate-800 border-slate-700 text-white max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-white">Add Family Member</DialogTitle>
+          <DialogTitle className="text-xl font-semibold text-white">
+            {editingMember ? 'Edit Family Member' : 'Add Family Member'}
+          </DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -218,7 +248,7 @@ const AddFamilyMemberModal = ({ open, onOpenChange, onAddFamilyMember }: AddFami
               type="submit"
               className="bg-blue-600 hover:bg-blue-700"
             >
-              Add Family Member
+              {editingMember ? 'Update Family Member' : 'Add Family Member'}
             </Button>
           </div>
         </form>

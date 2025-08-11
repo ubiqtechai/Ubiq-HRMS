@@ -10,6 +10,7 @@ import AddPositionModal from "./AddPositionModal";
 
 const EmployeePositionHistory = () => {
   const [isAddPositionOpen, setIsAddPositionOpen] = useState(false);
+  const [editingPosition, setEditingPosition] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState("all-employees");
   const [departmentFilter, setDepartmentFilter] = useState("all-departments");
@@ -48,20 +49,33 @@ const EmployeePositionHistory = () => {
   ]);
 
   const handleAddPosition = (newPosition: any) => {
-    const newId = Math.max(...positionHistory.map(p => p.id)) + 1;
-    setPositionHistory([
-      {
-        id: newId,
-        ...newPosition,
-        endDate: "Current",
-        status: "Active"
-      },
-      ...positionHistory
-    ]);
+    if (editingPosition) {
+      // Edit existing position
+      setPositionHistory(prev => prev.map(p => 
+        p.id === editingPosition.id ? { ...newPosition, id: editingPosition.id } : p
+      ));
+      setEditingPosition(null);
+    } else {
+      // Add new position
+      const newId = Math.max(...positionHistory.map(p => p.id)) + 1;
+      setPositionHistory([
+        {
+          id: newId,
+          ...newPosition,
+          endDate: "Current",
+          status: "Active"
+        },
+        ...positionHistory
+      ]);
+    }
   };
 
   const handleEditPosition = (id: number) => {
-    console.log("Edit position:", id);
+    const position = positionHistory.find(p => p.id === id);
+    if (position) {
+      setEditingPosition(position);
+      setIsAddPositionOpen(true);
+    }
   };
 
   const handleDeletePosition = (id: number) => {
@@ -224,8 +238,12 @@ const EmployeePositionHistory = () => {
 
       <AddPositionModal
         open={isAddPositionOpen}
-        onOpenChange={setIsAddPositionOpen}
+        onOpenChange={(open) => {
+          setIsAddPositionOpen(open);
+          if (!open) setEditingPosition(null);
+        }}
         onAddPosition={handleAddPosition}
+        editingPosition={editingPosition}
       />
     </div>
   );

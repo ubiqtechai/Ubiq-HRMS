@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type AddPositionModalProps = {
   open: boolean;
@@ -22,18 +22,37 @@ type AddPositionModalProps = {
     salary: string;
     manager: string;
   }) => void;
+  editingPosition?: any;
 };
 
 export default function AddPositionModal({
   open,
   onOpenChange,
   onAddPosition,
+  editingPosition,
 }: AddPositionModalProps) {
   const [position, setPosition] = useState("");
   const [department, setDepartment] = useState("");
   const [startDate, setStartDate] = useState("");
   const [salary, setSalary] = useState("");
   const [manager, setManager] = useState("");
+
+  // Update form data when editing position changes
+  useEffect(() => {
+    if (editingPosition) {
+      setPosition(editingPosition.position);
+      setDepartment(editingPosition.department);
+      setStartDate(editingPosition.startDate);
+      setSalary(editingPosition.salary);
+      setManager(editingPosition.manager);
+    } else {
+      setPosition("");
+      setDepartment("");
+      setStartDate("");
+      setSalary("");
+      setManager("");
+    }
+  }, [editingPosition]);
 
   const handleSave = () => {
     if (onAddPosition) {
@@ -57,9 +76,9 @@ export default function AddPositionModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-slate-900 border-slate-700 w-full max-w-md">
         <DialogHeader>
-          <DialogTitle>Add New Position</DialogTitle>
+          <DialogTitle>{editingPosition ? 'Edit Position' : 'Add New Position'}</DialogTitle>
           <DialogDescription>
-            Add a new position to employee history.
+            {editingPosition ? 'Edit the position details.' : 'Add a new position to employee history.'}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 mt-4">
@@ -135,7 +154,7 @@ export default function AddPositionModal({
             className="w-full bg-blue-600 hover:bg-blue-700"
             onClick={handleSave}
           >
-            Add Position
+            {editingPosition ? 'Update Position' : 'Add Position'}
           </Button>
         </DialogFooter>
       </DialogContent>
