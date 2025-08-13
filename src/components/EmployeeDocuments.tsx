@@ -96,8 +96,11 @@ const EmployeeDocuments = () => {
     if (file) {
       try {
         // Append extra fields for n8n
+        formData.append("employeeName", selectedEmployeeName);
         formData.append("employeeId", selectedEmployeeId);
         formData.append("category", selectedDocCategory);
+        
+
   
         const response = await fetch("https://hrmubiq.app.n8n.cloud/webhook/upload-doc", {
           method: "POST",
