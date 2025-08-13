@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Upload, Download, Trash2, FileText, Plus, Edit2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,6 +23,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { getEmployees, Employee } from "@/lib/firebase";
 
 interface Document {
   id: string;
@@ -31,6 +32,7 @@ interface Document {
   size: string;
   uploadDate: string;
   employeeId?: string;
+  category?: string;
 }
 
 const EmployeeDocuments = () => {
@@ -64,7 +66,15 @@ const EmployeeDocuments = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState("all-employees");
   const [typeFilter, setTypeFilter] = useState("all-types");
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>("");
+  const [selectedDocCategory, setSelectedDocCategory] = useState<string>("");
 
+  useEffect(() => {
+    getEmployees()
+      .then(setEmployees)
+      .catch((e) => console.error("Failed to load employees", e));
+  }, []);
   const handleDeleteDocument = () => {
     if (documentToDelete) {
       setDocuments(documents.filter(doc => doc.id !== documentToDelete));
@@ -77,7 +87,12 @@ const EmployeeDocuments = () => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const file = formData.get('document') as File;
-    
+
+    if (!selectedEmployeeId || !selectedDocCategory) {
+      console.warn('Please select Name, Employee ID and Document type');
+      return;
+    }
+
     if (file) {
       const newDocument: Document = {
         id: Date.now().toString(),
@@ -85,9 +100,13 @@ const EmployeeDocuments = () => {
         type: file.type.toUpperCase().includes('PDF') ? 'PDF' : 'IMAGE',
         size: `${(file.size / 1024 / 1024).toFixed(1)} MB`,
         uploadDate: new Date().toISOString().split('T')[0],
+        employeeId: selectedEmployeeId,
+        category: selectedDocCategory,
       };
-      
+
       setDocuments([...documents, newDocument]);
+      setSelectedEmployeeId("");
+      setSelectedDocCategory("");
       setUploadDialogOpen(false);
     }
   };
@@ -128,18 +147,66 @@ const EmployeeDocuments = () => {
               <DialogTitle className="text-white">Upload New Document</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleUploadDocument} className="space-y-4">
-              <div>
-                <Label htmlFor="document" className="text-slate-300">
-                  Select Document
-                </Label>
-                <Input
-                  id="document"
-                  name="document"
-                  type="file"
-                  accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                  className="bg-slate-700 border-slate-600 text-white"
-                  required
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-slate-300">Name</Label>
+                  <Select value={selectedEmployeeId} onValueChange={(v) => setSelectedEmployeeId(v)}>
+                    <SelectTrigger className="w-full bg-slate-700 border-slate-600 text-white">
+                      <SelectValue placeholder="Select Name" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-800 border-slate-700">
+                      {employees.map((emp) => (
+                        <SelectItem key={emp.employeeId} value={emp.employeeId} className="text-white">
+                          {emp.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-slate-300">Employee ID</Label>
+                  <Select value={selectedEmployeeId} onValueChange={(v) => setSelectedEmployeeId(v)}>
+                    <SelectTrigger className="w-full bg-slate-700 border-slate-600 text-white">
+                      <SelectValue placeholder="Select Employee ID" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-800 border-slate-700">
+                      {employees.map((emp) => (
+                        <SelectItem key={emp.employeeId} value={emp.employeeId} className="text-white">
+                          {emp.employeeId}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-slate-300">Document</Label>
+                  <Select value={selectedDocCategory} onValueChange={setSelectedDocCategory}>
+                    <SelectTrigger className="w-full bg-slate-700 border-slate-600 text-white">
+                      <SelectValue placeholder="Select Document Type" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-800 border-slate-700">
+                      <SelectItem value="PAN Card" className="text-white">PAN Card</SelectItem>
+                      <SelectItem value="Aadhaar Card" className="text-white">Aadhaar Card</SelectItem>
+                      <SelectItem value="Passport" className="text-white">Passport</SelectItem>
+                      <SelectItem value="Offer Letter" className="text-white">Offer Letter</SelectItem>
+                      <SelectItem value="Experience Letter" className="text-white">Experience Letter</SelectItem>
+                      <SelectItem value="Salary Slip" className="text-white">Salary Slip</SelectItem>
+                      <SelectItem value="Bank Statement" className="text-white">Bank Statement</SelectItem>
+                      <SelectItem value="Other" className="text-white">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="document" className="text-slate-300">Select File</Label>
+                  <Input
+                    id="document"
+                    name="document"
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                    className="bg-slate-700 border-slate-600 text-white"
+                    required
+                  />
+                </div>
               </div>
               <div className="flex justify-end gap-2">
                 <Button
@@ -212,7 +279,7 @@ const EmployeeDocuments = () => {
                     <div>
                       <p className="text-white font-medium">{document.name}</p>
                       <p className="text-slate-400 text-sm">
-                        {document.type} • {document.size} • Uploaded {document.uploadDate}
+                        {document.type} • {document.size} • {document.category ? `${document.category} • ` : ""}Uploaded {document.uploadDate}
                       </p>
                     </div>
                   </div>
