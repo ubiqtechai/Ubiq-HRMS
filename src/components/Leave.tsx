@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Calendar, Clock, Plus, Filter, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { Calendar, Clock, Plus, Filter, CheckCircle, XCircle, AlertCircle, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -364,13 +364,13 @@ const Leave = () => {
                               >
                                 Reject
                               </Button>
-                              <Button
+                               <Button
                                 size="sm"
                                 variant="outline"
                                 className="border-blue-600 text-blue-400 hover:bg-blue-600/20"
                                 onClick={() => handleEdit(request)}
                               >
-                                Edit
+                                <Edit className="w-4 h-4" />
                               </Button>
                               <Button
                                 size="sm"
@@ -378,7 +378,7 @@ const Leave = () => {
                                 className="border-red-600 text-red-400 hover:bg-red-600/20"
                                 onClick={() => handleDelete(request.id)}
                               >
-                                Delete
+                                <Trash2 className="w-4 h-4" />
                               </Button>
                             </div>
                           )}
@@ -390,7 +390,7 @@ const Leave = () => {
                                 className="border-blue-600 text-blue-400 hover:bg-blue-600/20"
                                 onClick={() => handleEdit(request)}
                               >
-                                Edit
+                                <Edit className="w-4 h-4" />
                               </Button>
                               <Button
                                 size="sm"
@@ -398,7 +398,7 @@ const Leave = () => {
                                 className="border-red-600 text-red-400 hover:bg-red-600/20"
                                 onClick={() => handleDelete(request.id)}
                               >
-                                Delete
+                                <Trash2 className="w-4 h-4" />
                               </Button>
                             </div>
                           )}
@@ -410,7 +410,7 @@ const Leave = () => {
                                 className="border-blue-600 text-blue-400 hover:bg-blue-600/20"
                                 onClick={() => handleEdit(request)}
                               >
-                                Edit
+                                <Edit className="w-4 h-4" />
                               </Button>
                               <Button
                                 size="sm"
@@ -418,7 +418,7 @@ const Leave = () => {
                                 className="border-red-600 text-red-400 hover:bg-red-600/20"
                                 onClick={() => handleDelete(request.id)}
                               >
-                                Delete
+                                <Trash2 className="w-4 h-4" />
                               </Button>
                             </div>
                           )}

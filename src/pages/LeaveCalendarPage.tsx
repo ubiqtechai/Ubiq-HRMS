@@ -28,6 +28,7 @@ export default function LeaveCalendarPage() {
   const [selectedYear, setSelectedYear] = useState("2025");
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
+  const [selectedEmployee, setSelectedEmployee] = useState<string>("all");
 
   // Load employees and subscribe to leave requests
   useEffect(() => {
@@ -90,6 +91,11 @@ export default function LeaveCalendarPage() {
     });
   };
 
+  // Update current month when year changes
+  useEffect(() => {
+    setCurrentMonth(new Date(parseInt(selectedYear), currentMonth.getMonth()));
+  }, [selectedYear]);
+
   const filteredEmployees = employees.filter(employee =>
     employee.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -97,12 +103,13 @@ export default function LeaveCalendarPage() {
   const getLeaveForDate = (date: number | null) => {
     if (!date) return [];
     const currentDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), date);
-    const dateString = currentDate.toISOString().split('T')[0];
     
     return leaveRequests.filter(leave => {
       const startDate = new Date(leave.startDate);
       const endDate = new Date(leave.endDate);
-      return currentDate >= startDate && currentDate <= endDate && leave.status === "Approved";
+      const isInDateRange = currentDate >= startDate && currentDate <= endDate && leave.status === "Approved";
+      const isEmployeeMatch = selectedEmployee === "all" || leave.employee === selectedEmployee;
+      return isInDateRange && isEmployeeMatch;
     });
   };
 
@@ -148,11 +155,25 @@ export default function LeaveCalendarPage() {
                 <SelectItem value="2024">2024</SelectItem>
                 <SelectItem value="2025">2025</SelectItem>
                 <SelectItem value="2026">2026</SelectItem>
+                <SelectItem value="2027">2027</SelectItem>
+                <SelectItem value="2028">2028</SelectItem>
+                <SelectItem value="2029">2029</SelectItem>
+                <SelectItem value="2030">2030</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" size="sm">
-              <Filter className="h-4 w-4" />
-            </Button>
+            <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Filter by employee" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Employees</SelectItem>
+                {employees.map(employee => (
+                  <SelectItem key={employee.id} value={employee.name}>
+                    {employee.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
