@@ -83,31 +83,53 @@ const EmployeeDocuments = () => {
     }
   };
 
-  const handleUploadDocument = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleUploadDocument = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const file = formData.get('document') as File;
-
+  
     if (!selectedEmployeeId || !selectedDocCategory) {
       console.warn('Please select Name, Employee ID and Document type');
       return;
     }
-
+  
     if (file) {
-      const newDocument: Document = {
-        id: Date.now().toString(),
-        name: file.name,
-        type: file.type.toUpperCase().includes('PDF') ? 'PDF' : 'IMAGE',
-        size: `${(file.size / 1024 / 1024).toFixed(1)} MB`,
-        uploadDate: new Date().toISOString().split('T')[0],
-        employeeId: selectedEmployeeId,
-        category: selectedDocCategory,
-      };
-
-      setDocuments([...documents, newDocument]);
-      setSelectedEmployeeId("");
-      setSelectedDocCategory("");
-      setUploadDialogOpen(false);
+      try {
+        // Append extra fields for n8n
+        formData.append("employeeId", selectedEmployeeId);
+        formData.append("category", selectedDocCategory);
+  
+        const response = await fetch("https://adarshkr03.app.n8n.cloud/webhook/upload-doc", {
+          method: "POST",
+          body: formData,
+        });
+  
+        if (!response.ok) {
+          throw new Error(`Upload failed with status ${response.status}`);
+        }
+  
+        const result = await response.json(); // or text(), depending on n8n response
+        console.log("Upload success:", result);
+  
+        // Optional: update local state so UI refreshes immediately
+        const newDocument: Document = {
+          id: Date.now().toString(),
+          name: file.name,
+          type: file.type.toUpperCase().includes('PDF') ? 'PDF' : 'IMAGE',
+          size: `${(file.size / 1024 / 1024).toFixed(1)} MB`,
+          uploadDate: new Date().toISOString().split('T')[0],
+          employeeId: selectedEmployeeId,
+          category: selectedDocCategory,
+        };
+  
+        setDocuments([...documents, newDocument]);
+        setSelectedEmployeeId("");
+        setSelectedDocCategory("");
+        setUploadDialogOpen(false);
+  
+      } catch (err) {
+        console.error("Error uploading document:", err);
+      }
     }
   };
 
