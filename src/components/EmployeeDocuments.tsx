@@ -99,7 +99,7 @@ const EmployeeDocuments = () => {
         formData.append("employeeId", selectedEmployeeId);
         formData.append("category", selectedDocCategory);
   
-        const response = await fetch("https://adarshkr03.app.n8n.cloud/webhook/upload-doc", {
+        const response = await fetch("https://hrmubiq.app.n8n.cloud/webhook/upload-doc", {
           method: "POST",
           body: formData,
         });
