@@ -9,7 +9,8 @@ import {
   LeaveRequest, 
   addLeaveRequest, 
   subscribeToLeaveRequests, 
-  updateLeaveRequest 
+  updateLeaveRequest,
+  deleteLeaveRequest 
 } from "@/lib/firebase";
 
 
@@ -19,6 +20,7 @@ const Leave = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingRequest, setEditingRequest] = useState<LeaveRequest | null>(null);
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
+  const [filterStatus, setFilterStatus] = useState<string>("all");
 
   // Subscribe to real-time updates from Firebase
   useEffect(() => {
@@ -54,9 +56,27 @@ const Leave = () => {
         description: `The leave request has been rejected.`,
       });
     } catch (error) {
+      console.error("Error rejecting leave request:", error);
       toast({
         title: "Error",
         description: "Failed to reject leave request.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteLeaveRequest(id);
+      toast({
+        title: "Leave Request Deleted",
+        description: "The leave request has been deleted successfully.",
+      });
+    } catch (error) {
+      console.error("Error deleting leave request:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete leave request.",
         variant: "destructive"
       });
     }
@@ -93,6 +113,7 @@ const Leave = () => {
       setShowEditModal(false);
       setEditingRequest(null);
     } catch (error) {
+      console.error("Error updating leave request:", error);
       toast({
         title: "Error",
         description: "Failed to update leave request.",
@@ -167,9 +188,13 @@ const Leave = () => {
       case "Rejected":
         return "bg-red-400/20 text-red-400";
       default:
-        return "bg-yellow-400/20 text-yellow-400";
+      return "bg-yellow-400/20 text-yellow-400";
     }
   };
+
+  const filteredLeaveRequests = filterStatus === "all" 
+    ? leaveRequests 
+    : leaveRequests.filter(request => request.status.toLowerCase() === filterStatus.toLowerCase());
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -211,10 +236,10 @@ const Leave = () => {
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {[
-              { title: "Total Requests", value: leaveRequests.length.toString(), color: "text-blue-400" },
-              { title: "Pending", value: leaveRequests.filter(l => l.status === "Pending").length.toString(), color: "text-yellow-400" },
-              { title: "Approved", value: leaveRequests.filter(l => l.status === "Approved").length.toString(), color: "text-green-400" },
-              { title: "Rejected", value: leaveRequests.filter(l => l.status === "Rejected").length.toString(), color: "text-red-400" }
+              { title: "Total Requests", value: filteredLeaveRequests.length.toString(), color: "text-blue-400" },
+              { title: "Pending", value: filteredLeaveRequests.filter(l => l.status === "Pending").length.toString(), color: "text-yellow-400" },
+              { title: "Approved", value: filteredLeaveRequests.filter(l => l.status === "Approved").length.toString(), color: "text-green-400" },
+              { title: "Rejected", value: filteredLeaveRequests.filter(l => l.status === "Rejected").length.toString(), color: "text-red-400" }
             ].map((stat, index) => (
               <Card key={index} className="bg-slate-800/50 backdrop-blur-xl border-slate-700">
                 <CardContent className="p-6 text-center">
@@ -229,19 +254,26 @@ const Leave = () => {
           <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-white">Recent Leave Requests</CardTitle>
-              <Button
-                variant="outline"
-                className="border-slate-600 text-slate-400"
-                onClick={() => {
-                  toast({
-                    title: "Filter",
-                    description: "Filter functionality coming soon.",
-                  });
-                }}
-              >
-                <Filter className="w-4 h-4 mr-2" />
-                Filter
-              </Button>
+              <div className="flex items-center gap-2">
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="bg-slate-700 border border-slate-600 text-slate-300 rounded px-3 py-1 text-sm"
+                >
+                  <option value="all">All Status</option>
+                  <option value="pending">Pending</option>
+                  <option value="approved">Approved</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+                <Button
+                  variant="outline"
+                  className="border-slate-600 text-slate-400"
+                  onClick={() => setFilterStatus("all")}
+                >
+                  <Filter className="w-4 h-4 mr-2" />
+                  Clear Filter
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="p-0">
               <div className="overflow-hidden">
@@ -257,7 +289,7 @@ const Leave = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {leaveRequests.map((request) => (
+                    {filteredLeaveRequests.map((request) => (
                       <tr
                         key={request.id}
                         className="border-b border-slate-700/50 hover:bg-slate-700/30 transition-colors"
@@ -319,6 +351,14 @@ const Leave = () => {
                               >
                                 Edit
                               </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-red-600 text-red-400 hover:bg-red-600/20"
+                                onClick={() => handleDelete(request.id)}
+                              >
+                                Delete
+                              </Button>
                             </div>
                           )}
                           {request.status === "Approved" && (
@@ -330,6 +370,14 @@ const Leave = () => {
                                 onClick={() => handleEdit(request)}
                               >
                                 Edit
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-red-600 text-red-400 hover:bg-red-600/20"
+                                onClick={() => handleDelete(request.id)}
+                              >
+                                Delete
                               </Button>
                             </div>
                           )}
@@ -343,6 +391,14 @@ const Leave = () => {
                               >
                                 Edit
                               </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-red-600 text-red-400 hover:bg-red-600/20"
+                                onClick={() => handleDelete(request.id)}
+                              >
+                                Delete
+                              </Button>
                             </div>
                           )}
                         </td>
@@ -350,6 +406,11 @@ const Leave = () => {
                     ))}
                   </tbody>
                 </table>
+                {filteredLeaveRequests.length === 0 && (
+                  <div className="text-center py-8 text-slate-400">
+                    No leave requests found {filterStatus !== "all" && `with status "${filterStatus}"`}
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

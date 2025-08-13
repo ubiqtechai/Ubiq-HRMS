@@ -9,8 +9,11 @@ const leaders = [
 
 export default function LeadershipPage() {
   return (
-    <div className="max-w-2xl mx-auto py-10">
-      <h1 className="text-3xl font-bold mb-8 text-center text-white">Leadership Team</h1>
+    <div className="space-y-6 animate-fade-in">
+      <div>
+        <h1 className="text-3xl font-bold text-white mb-2">Leadership Team</h1>
+        <p className="text-slate-400">Meet our organization's leadership team</p>
+      </div>
       <div className="flex flex-col md:flex-row items-center justify-center gap-8">
         {leaders.map(({ name, role, icon: Icon }) => (
           <div
