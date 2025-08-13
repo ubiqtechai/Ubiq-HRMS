@@ -84,6 +84,16 @@ export default function HolidayCalendarPage() {
     });
   };
 
+  const getUpcomingHolidays = (count: number = 3) => {
+    const today = new Date();
+    return HOLIDAYS_2024
+      .filter(holiday => {
+        const holidayDate = new Date(2024, holiday.month, holiday.dayOfMonth);
+        return holidayDate > today;
+      })
+      .slice(0, count);
+  };
+
   const navigateCalendar = (direction: "prev" | "next") => {
     setCurrentDate(prev => {
       const newDate = new Date(prev);
@@ -143,8 +153,8 @@ export default function HolidayCalendarPage() {
   const { current, next } = getCurrentAndNextMonth();
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <div className="bg-card rounded-lg shadow-lg p-6">
+    <div className="p-4 max-w-7xl mx-auto">
+      <div className="bg-card rounded-lg shadow-lg p-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-foreground">Holiday Calendar</h1>
@@ -171,62 +181,52 @@ export default function HolidayCalendarPage() {
         </div>
 
         {viewMode === "list" ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Left side - Illustration and info */}
-            <div className="space-y-6">
+            <div className="space-y-4">
               {/* Decorative illustration placeholder */}
-              <div className="bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg p-8 h-64 flex items-center justify-center">
+              <div className="bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg p-6 h-48 flex items-center justify-center">
                 <div className="text-center">
-                  <div className="text-6xl mb-4">🏖️</div>
+                  <div className="text-5xl mb-2">🏖️</div>
                   <p className="text-muted-foreground">Holiday Calendar</p>
                 </div>
               </div>
 
-              {/* Today's holiday */}
-              {todayHoliday && (
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Dot className="h-6 w-6 text-green-500" />
-                      <span className="font-medium text-foreground">Today</span>
-                      <span className="text-sm text-muted-foreground">2024 {todayHoliday.date}</span>
-                    </div>
-                    <h3 className="font-semibold text-foreground mb-1">{todayHoliday.name}</h3>
-                    <p className="text-sm text-muted-foreground">{todayHoliday.description}</p>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Upcoming holiday */}
-              {upcomingHoliday && (
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Dot className="h-6 w-6 text-orange-500" />
-                      <span className="font-medium text-foreground">Upcoming</span>
-                      <span className="text-sm text-muted-foreground">2024 {upcomingHoliday.date}</span>
-                    </div>
-                    <h3 className="font-semibold text-foreground mb-1">{upcomingHoliday.name}</h3>
-                    <p className="text-sm text-muted-foreground">{upcomingHoliday.description}</p>
-                  </CardContent>
-                </Card>
-              )}
+              {/* Upcoming holidays section */}
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-foreground mb-3">Upcoming Holidays</h3>
+                {getUpcomingHolidays(4).map((holiday, index) => (
+                  <Card key={index} className="border-l-4 border-primary">
+                    <CardContent className="p-3">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-medium text-foreground">{holiday.name}</span>
+                        <span className="text-sm text-muted-foreground">{holiday.date}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">{holiday.day}</span>
+                        <Dot className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">Office closed</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
 
             {/* Right side - Holiday list */}
             <div>
-              <div className="bg-muted/30 rounded-lg p-4">
-                <div className="grid grid-cols-3 gap-4 mb-4 font-medium text-muted-foreground text-sm">
+              <div className="bg-muted/30 rounded-lg p-3">
+                <div className="grid grid-cols-3 gap-3 mb-3 font-medium text-muted-foreground text-sm">
                   <div>HOLIDAY</div>
                   <div>DAY</div>
                   <div>DATE</div>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {HOLIDAYS_2024.map((holiday, index) => (
-                    <div key={index} className="grid grid-cols-3 gap-4 py-2 border-l-4 border-primary pl-4">
-                      <div className="font-medium text-foreground">{holiday.name}</div>
-                      <div className="text-muted-foreground">{holiday.day}</div>
-                      <div className="text-muted-foreground">{holiday.date}</div>
+                    <div key={index} className="grid grid-cols-3 gap-3 py-2 border-l-4 border-primary pl-3">
+                      <div className="font-medium text-foreground text-sm">{holiday.name}</div>
+                      <div className="text-muted-foreground text-sm">{holiday.day}</div>
+                      <div className="text-muted-foreground text-sm">{holiday.date}</div>
                     </div>
                   ))}
                 </div>
