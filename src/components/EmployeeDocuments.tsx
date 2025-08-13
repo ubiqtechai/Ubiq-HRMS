@@ -96,6 +96,7 @@ const EmployeeDocuments = () => {
     if (file) {
       try {
         // Append extra fields for n8n
+        const selectedEmployeeName = employees.find(emp => emp.employeeId === selectedEmployeeId)?.name || "";
         formData.append("employeeName", selectedEmployeeName);
         formData.append("employeeId", selectedEmployeeId);
         formData.append("category", selectedDocCategory);
