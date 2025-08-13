@@ -75,7 +75,7 @@ export default function LeaveRequestModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-slate-900 border-slate-700 w-full max-w-md">
+      <DialogContent className="bg-slate-900 border-slate-700 w-full max-w-md z-[100]">
         <DialogHeader>
           <DialogTitle>{isEdit ? "Edit Leave Request" : "New Leave Request"}</DialogTitle>
           <DialogDescription>
@@ -93,12 +93,25 @@ export default function LeaveRequestModal({
               className="bg-slate-800 text-white border-slate-700"
             />
           )}
-          <Input
-            placeholder="Leave Type (e.g. Sick Leave, Annual Leave)"
-            value={type}
-            onChange={e => setType(e.target.value)}
-            className="bg-slate-800 text-white border-slate-700"
-          />
+          <div>
+            <label className="block text-slate-400 text-sm mb-1">Leave Type</label>
+            <select
+              value={type}
+              onChange={e => setType(e.target.value)}
+              className="w-full bg-slate-800 text-white border border-slate-700 rounded px-3 py-2 z-50"
+              style={{ backgroundColor: '#1e293b', zIndex: 50 }}
+            >
+              <option value="">Select Leave Type</option>
+              <option value="Annual Leave">Annual Leave</option>
+              <option value="Sick Leave">Sick Leave</option>
+              <option value="Casual Leave">Casual Leave</option>
+              <option value="Maternity Leave">Maternity Leave</option>
+              <option value="Paternity Leave">Paternity Leave</option>
+              <option value="Emergency Leave">Emergency Leave</option>
+              <option value="Study Leave">Study Leave</option>
+              <option value="Unpaid Leave">Unpaid Leave</option>
+            </select>
+          </div>
           <div className="flex gap-2">
             <Input
               placeholder="Start Date (YYYY-MM-DD)"
@@ -127,8 +140,10 @@ export default function LeaveRequestModal({
               <select
                 value={status}
                 onChange={e => setStatus(e.target.value)}
-                className="w-full bg-slate-800 text-white border border-slate-700 rounded px-3 py-2"
+                className="w-full bg-slate-800 text-white border border-slate-700 rounded px-3 py-2 z-50"
+                style={{ backgroundColor: '#1e293b', zIndex: 50 }}
               >
+                <option value="Pending">Pending</option>
                 <option value="Approved">Approved</option>
                 <option value="Rejected">Rejected</option>
               </select>

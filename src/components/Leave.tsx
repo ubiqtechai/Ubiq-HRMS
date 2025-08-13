@@ -34,15 +34,17 @@ const Leave = () => {
   // Approve/Reject handlers
   const handleApprove = async (id: string) => {
     try {
+      console.log('Approving leave request with ID:', id);
       await updateLeaveRequest(id, { status: "Approved" });
       toast({
         title: "Leave Request Approved",
         description: `The leave request has been approved.`,
       });
     } catch (error) {
+      console.error("Error approving leave request:", error);
       toast({
         title: "Error",
-        description: "Failed to approve leave request.",
+        description: `Failed to approve leave request: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive"
       });
     }
@@ -50,6 +52,7 @@ const Leave = () => {
 
   const handleReject = async (id: string) => {
     try {
+      console.log('Rejecting leave request with ID:', id);
       await updateLeaveRequest(id, { status: "Rejected" });
       toast({
         title: "Leave Request Rejected",
@@ -59,7 +62,7 @@ const Leave = () => {
       console.error("Error rejecting leave request:", error);
       toast({
         title: "Error",
-        description: "Failed to reject leave request.",
+        description: `Failed to reject leave request: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive"
       });
     }
@@ -94,17 +97,35 @@ const Leave = () => {
     endDate: string;
     status?: string;
   }) => {
-    if (!editingRequest?.id) return;
+    if (!editingRequest?.id) {
+      toast({
+        title: "Error",
+        description: "No request selected for editing.",
+        variant: "destructive"
+      });
+      return;
+    }
     
     try {
       const msPerDay = 24 * 60 * 60 * 1000;
       const days = (new Date(data.endDate).getTime() - new Date(data.startDate).getTime()) / msPerDay + 1;
       
-      await updateLeaveRequest(editingRequest.id, {
-        ...data,
+      const updateData: any = {
+        reason: data.reason,
+        type: data.type,
+        startDate: data.startDate,
+        endDate: data.endDate,
         days: days > 0 ? days : 1,
-        status: data.status ? data.status : editingRequest.status,
-      });
+      };
+
+      // Only update status if provided
+      if (data.status) {
+        updateData.status = data.status;
+      }
+      
+      console.log('Updating leave request with ID:', editingRequest.id, 'Data:', updateData);
+      
+      await updateLeaveRequest(editingRequest.id, updateData);
       
       toast({
         title: "Leave Request Updated",
@@ -116,7 +137,7 @@ const Leave = () => {
       console.error("Error updating leave request:", error);
       toast({
         title: "Error",
-        description: "Failed to update leave request.",
+        description: `Failed to update leave request: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive"
       });
     }
