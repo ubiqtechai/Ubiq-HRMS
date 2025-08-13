@@ -94,4 +94,77 @@ export const subscribeToEmployees = (callback: (employees: Employee[]) => void) 
   });
 };
 
+// Leave Request interface
+export interface LeaveRequest {
+  id?: string;
+  employee: string;
+  type: string;
+  startDate: string;
+  endDate: string;
+  days: number;
+  status: string;
+  reason: string;
+  avatar: string;
+  createdAt?: string;
+}
+
+// Leave Request CRUD operations
+export const leaveRequestsCollection = collection(db, 'Leave Request');
+
+export const addLeaveRequest = async (leaveRequest: Omit<LeaveRequest, 'id'>) => {
+  try {
+    const docRef = await addDoc(leaveRequestsCollection, {
+      ...leaveRequest,
+      createdAt: new Date().toISOString()
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error("Error adding leave request: ", error);
+    throw error;
+  }
+};
+
+export const getLeaveRequests = async () => {
+  try {
+    const querySnapshot = await getDocs(leaveRequestsCollection);
+    const leaveRequests: LeaveRequest[] = [];
+    querySnapshot.forEach((doc) => {
+      leaveRequests.push({ id: doc.id, ...doc.data() } as LeaveRequest);
+    });
+    return leaveRequests;
+  } catch (error) {
+    console.error("Error getting leave requests: ", error);
+    throw error;
+  }
+};
+
+export const updateLeaveRequest = async (id: string, leaveRequest: Partial<LeaveRequest>) => {
+  try {
+    const leaveRequestRef = doc(db, 'Leave Request', id);
+    await updateDoc(leaveRequestRef, leaveRequest);
+  } catch (error) {
+    console.error("Error updating leave request: ", error);
+    throw error;
+  }
+};
+
+export const deleteLeaveRequest = async (id: string) => {
+  try {
+    await deleteDoc(doc(db, 'Leave Request', id));
+  } catch (error) {
+    console.error("Error deleting leave request: ", error);
+    throw error;
+  }
+};
+
+export const subscribeToLeaveRequests = (callback: (leaveRequests: LeaveRequest[]) => void) => {
+  return onSnapshot(leaveRequestsCollection, (querySnapshot) => {
+    const leaveRequests: LeaveRequest[] = [];
+    querySnapshot.forEach((doc) => {
+      leaveRequests.push({ id: doc.id, ...doc.data() } as LeaveRequest);
+    });
+    callback(leaveRequests);
+  });
+};
+
 export { app, analytics, db };

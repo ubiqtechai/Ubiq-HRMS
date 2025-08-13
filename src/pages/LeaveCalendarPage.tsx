@@ -1,54 +1,52 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronLeft, ChevronRight, Search, Filter } from "lucide-react";
+import { subscribeToLeaveRequests, LeaveRequest, getEmployees, Employee } from "@/lib/firebase";
 
-// Sample employee data
-const EMPLOYEES = [
-  { id: 1, name: "Manikandan", avatar: "/lovable-uploads/placeholder-avatar.jpg" },
-  { id: 2, name: "Gokulakrishnan", avatar: "/lovable-uploads/placeholder-avatar.jpg" },
-  { id: 3, name: "Praveen Kumar", avatar: "/lovable-uploads/placeholder-avatar.jpg" },
-  { id: 4, name: "Sankar", avatar: "/lovable-uploads/placeholder-avatar.jpg" },
-  { id: 5, name: "Faris", avatar: "/lovable-uploads/placeholder-avatar.jpg" },
-  { id: 6, name: "Muthukrishnan", avatar: "/lovable-uploads/placeholder-avatar.jpg" },
-  { id: 7, name: "Salman", avatar: "/lovable-uploads/placeholder-avatar.jpg" },
-  { id: 8, name: "Steve Smith", avatar: "/lovable-uploads/placeholder-avatar.jpg" },
-  { id: 9, name: "Emma Lamb", avatar: "/lovable-uploads/placeholder-avatar.jpg" },
-  { id: 10, name: "Alexandra", avatar: "/lovable-uploads/placeholder-avatar.jpg" },
-  { id: 11, name: "Patrick", avatar: "/lovable-uploads/placeholder-avatar.jpg" },
-];
-
-// Sample leave data
-const LEAVE_DATA = [
-  { date: 2, type: "casual", employee: "Gokulakrishnan" },
-  { date: 5, type: "sick", employee: "Manikandan" },
-  { date: 10, type: "paid", employee: "Praveen Kumar" },
-  { date: 16, type: "sick", employee: "Sankar" },
-  { date: 20, type: "casual", employee: "Faris" },
-  { date: 25, type: "paid", employee: "Emma Lamb" },
-  { date: 26, type: "paid", employee: "Alexandra" },
-  { date: 30, type: "casual", employee: "Patrick" },
-];
 
 const LEAVE_COLORS = {
-  casual: "bg-cyan-400 text-cyan-900",
-  sick: "bg-purple-400 text-purple-900", 
-  paid: "bg-red-400 text-red-900"
+  "Sick Leave": "bg-purple-400 text-purple-900",
+  "Annual Leave": "bg-cyan-400 text-cyan-900", 
+  "Personal Leave": "bg-red-400 text-red-900",
+  "Casual Leave": "bg-green-400 text-green-900"
 };
 
 const LEAVE_LABELS = {
-  casual: "Casual leave",
-  sick: "Sick leave",
-  paid: "Paid time off"
+  "Sick Leave": "Sick leave",
+  "Annual Leave": "Annual leave",
+  "Personal Leave": "Personal leave", 
+  "Casual Leave": "Casual leave"
 };
 
 export default function LeaveCalendarPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date(2025, 5)); // June 2025
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedYear, setSelectedYear] = useState("2025");
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
+
+  // Load employees and subscribe to leave requests
+  useEffect(() => {
+    const loadEmployees = async () => {
+      try {
+        const employeeData = await getEmployees();
+        setEmployees(employeeData);
+      } catch (error) {
+        console.error("Error loading employees:", error);
+      }
+    };
+
+    const unsubscribe = subscribeToLeaveRequests((requests) => {
+      setLeaveRequests(requests);
+    });
+
+    loadEmployees();
+    return () => unsubscribe();
+  }, []);
 
   const monthNames = [
     "January", "February", "March", "April", "May", "June",
@@ -92,13 +90,20 @@ export default function LeaveCalendarPage() {
     });
   };
 
-  const filteredEmployees = EMPLOYEES.filter(employee =>
+  const filteredEmployees = employees.filter(employee =>
     employee.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const getLeaveForDate = (date: number | null) => {
     if (!date) return [];
-    return LEAVE_DATA.filter(leave => leave.date === date);
+    const currentDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), date);
+    const dateString = currentDate.toISOString().split('T')[0];
+    
+    return leaveRequests.filter(leave => {
+      const startDate = new Date(leave.startDate);
+      const endDate = new Date(leave.endDate);
+      return currentDate >= startDate && currentDate <= endDate && leave.status === "Approved";
+    });
   };
 
   const days = getDaysInMonth(currentMonth);
@@ -109,7 +114,7 @@ export default function LeaveCalendarPage() {
       <div className="w-80 bg-card border-r border-border p-4">
         <h3 className="text-lg font-semibold mb-4 text-foreground">Employees</h3>
         <div className="space-y-3 max-h-[calc(100vh-120px)] overflow-y-auto">
-          {filteredEmployees.map((employee) => (
+        {filteredEmployees.map((employee) => (
             <div key={employee.id} className="flex items-center space-x-3 p-2 hover:bg-muted rounded-lg cursor-pointer">
               <Avatar className="h-8 w-8">
                 <AvatarImage src={employee.avatar} alt={employee.name} />

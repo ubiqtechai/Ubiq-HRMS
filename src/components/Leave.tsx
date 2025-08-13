@@ -1,133 +1,107 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Calendar, Clock, Plus, Filter, CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import LeaveRequestModal from "./LeaveRequestModal";
 import { toast } from "@/hooks/use-toast";
+import { 
+  LeaveRequest, 
+  addLeaveRequest, 
+  subscribeToLeaveRequests, 
+  updateLeaveRequest 
+} from "@/lib/firebase";
 
-const initialLeaveRequests = [
-  {
-    id: "LR001",
-    employee: "John Carter",
-    type: "Sick Leave",
-    startDate: "2024-01-15",
-    endDate: "2024-01-17",
-    days: 3,
-    status: "Pending",
-    reason: "Medical appointment and recovery",
-    avatar: "JC"
-  },
-  {
-    id: "LR002",
-    employee: "Sophie Moore",
-    type: "Annual Leave",
-    startDate: "2024-01-20",
-    endDate: "2024-01-25",
-    days: 5,
-    status: "Approved",
-    reason: "Family vacation",
-    avatar: "SM"
-  },
-  {
-    id: "LR003",
-    employee: "Matt Cannon",
-    type: "Personal Leave",
-    startDate: "2024-01-18",
-    endDate: "2024-01-18",
-    days: 1,
-    status: "Rejected",
-    reason: "Personal matters",
-    avatar: "MC"
-  }
-];
-
-const leaveBalances = [
-  {
-    employee: "John Carter",
-    annual: { used: 8, total: 25 },
-    sick: { used: 3, total: 10 },
-    personal: { used: 2, total: 5 },
-    avatar: "JC"
-  },
-  {
-    employee: "Sophie Moore",
-    annual: { used: 12, total: 25 },
-    sick: { used: 1, total: 10 },
-    personal: { used: 1, total: 5 },
-    avatar: "SM"
-  }
-];
 
 const Leave = () => {
   const [activeTab, setActiveTab] = useState("requests");
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [editingRequest, setEditingRequest] = useState<any | null>(null);
+  const [editingRequest, setEditingRequest] = useState<LeaveRequest | null>(null);
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
 
-  // Convert to stateful array to allow updates
-  const [leaveRequests, setLeaveRequests] = useState(initialLeaveRequests);
+  // Subscribe to real-time updates from Firebase
+  useEffect(() => {
+    const unsubscribe = subscribeToLeaveRequests((requests) => {
+      setLeaveRequests(requests);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   // Approve/Reject handlers
-  const handleApprove = (id: string) => {
-    setLeaveRequests((prev) =>
-      prev.map((req) =>
-        req.id === id ? { ...req, status: "Approved" } : req
-      )
-    );
-    toast({
-      title: "Leave Request Approved",
-      description: `The leave request ${id} has been approved.`,
-    });
+  const handleApprove = async (id: string) => {
+    try {
+      await updateLeaveRequest(id, { status: "Approved" });
+      toast({
+        title: "Leave Request Approved",
+        description: `The leave request has been approved.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to approve leave request.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleReject = (id: string) => {
-    setLeaveRequests((prev) =>
-      prev.map((req) =>
-        req.id === id ? { ...req, status: "Rejected" } : req
-      )
-    );
-    toast({
-      title: "Leave Request Rejected",
-      description: `The leave request ${id} has been rejected.`,
-    });
+  const handleReject = async (id: string) => {
+    try {
+      await updateLeaveRequest(id, { status: "Rejected" });
+      toast({
+        title: "Leave Request Rejected",
+        description: `The leave request has been rejected.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to reject leave request.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleEdit = (request: any) => {
+  const handleEdit = (request: LeaveRequest) => {
     setEditingRequest(request);
     setShowEditModal(true);
   };
 
-  const handleEditSubmit = (data: {
+  const handleEditSubmit = async (data: {
     reason: string;
     type: string;
     startDate: string;
     endDate: string;
     status?: string;
   }) => {
-    const msPerDay = 24 * 60 * 60 * 1000;
-    const days = (new Date(data.endDate).getTime() - new Date(data.startDate).getTime()) / msPerDay + 1;
-    setLeaveRequests((prev) =>
-      prev.map((req) =>
-        req.id === editingRequest.id
-          ? {
-              ...req,
-              ...data,
-              days: days > 0 ? days : 1,
-              status: data.status ? data.status : req.status,
-            }
-          : req
-      )
-    );
-    toast({
-      title: "Leave Request Updated",
-      description: `Changes saved for leave request ${editingRequest.id}.`,
-    });
-    setShowEditModal(false);
-    setEditingRequest(null);
+    if (!editingRequest?.id) return;
+    
+    try {
+      const msPerDay = 24 * 60 * 60 * 1000;
+      const days = (new Date(data.endDate).getTime() - new Date(data.startDate).getTime()) / msPerDay + 1;
+      
+      await updateLeaveRequest(editingRequest.id, {
+        ...data,
+        days: days > 0 ? days : 1,
+        status: data.status ? data.status : editingRequest.status,
+      });
+      
+      toast({
+        title: "Leave Request Updated",
+        description: `Changes saved successfully.`,
+      });
+      setShowEditModal(false);
+      setEditingRequest(null);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update leave request.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleNewLeaveSubmit = (data: {
+  const handleNewLeaveSubmit = async (data: {
     reason: string;
     type: string;
     startDate: string;
@@ -136,25 +110,22 @@ const Leave = () => {
     status?: string;
   }) => {
     if (!data.employee) return;
-    const id = `LR${(leaveRequests.length + 1).toString().padStart(3, "0")}`;
-    const msPerDay = 24 * 60 * 60 * 1000;
-    const days =
-      (new Date(data.endDate).getTime() - new Date(data.startDate).getTime()) /
-        msPerDay +
-      1;
-    // Generate initials/avatar
-    const empNames = data.employee.trim().split(" ");
-    let avatar = "";
-    if (empNames.length >= 2) {
-      avatar =
-        empNames[0][0]?.toUpperCase() + empNames[empNames.length - 1][0]?.toUpperCase();
-    } else {
-      avatar = data.employee.slice(0, 2).toUpperCase();
-    }
-    setLeaveRequests((prev) => [
-      {
-        id,
-        employee: data.employee!,
+    
+    try {
+      const msPerDay = 24 * 60 * 60 * 1000;
+      const days = (new Date(data.endDate).getTime() - new Date(data.startDate).getTime()) / msPerDay + 1;
+      
+      // Generate initials/avatar
+      const empNames = data.employee.trim().split(" ");
+      let avatar = "";
+      if (empNames.length >= 2) {
+        avatar = empNames[0][0]?.toUpperCase() + empNames[empNames.length - 1][0]?.toUpperCase();
+      } else {
+        avatar = data.employee.slice(0, 2).toUpperCase();
+      }
+      
+      await addLeaveRequest({
+        employee: data.employee,
         type: data.type,
         startDate: data.startDate,
         endDate: data.endDate,
@@ -162,14 +133,20 @@ const Leave = () => {
         status: "Pending",
         reason: data.reason,
         avatar,
-      },
-      ...prev,
-    ]);
-    toast({
-      title: "Leave Request Submitted",
-      description: `New request submitted for ${data.employee}`,
-    });
-    setShowLeaveModal(false);
+      });
+      
+      toast({
+        title: "Leave Request Submitted",
+        description: `New request submitted for ${data.employee}`,
+      });
+      setShowLeaveModal(false);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to submit leave request.",
+        variant: "destructive"
+      });
+    }
   };
 
   const getStatusIcon = (status: string) => {
